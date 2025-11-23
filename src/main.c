@@ -111,11 +111,21 @@ int main()
     glDeleteShader(fragmentShader);
 
     // Create a buffer and put some data in it
-    float vertices[] = {
+    float elementVertices[] = {
          0.5f,  0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
         -0.5f, -0.5f, 0.0f,
         -0.5f,  0.5f, 0.0f,
+    };
+
+    float vertices[] = {
+         -0.8f, -0.8f, 0.0f,
+         -0.7f, -0.8f, 0.0f,
+         -0.75f, -0.7f, 0.0f,
+
+         -0.6f, -0.6f, 0.0f,
+         -0.5f, -0.6f, 0.0f,
+         -0.55f, -0.5f, 0.0f,
     };
 
     unsigned int indices[] = {
@@ -166,7 +176,11 @@ int main()
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glDrawArrays(GL_TRIANGLES, 3, 3);
 
         glBindVertexArray(0);
 
