@@ -112,16 +112,28 @@ int main()
 
     // Create a buffer and put some data in it
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f,
+         0.5f,  0.5f, 0.0f,
          0.5f, -0.5f, 0.0f,
-         0.0f,  0.5f, 0.0f,
+        -0.5f, -0.5f, 0.0f,
+        -0.5f,  0.5f, 0.0f,
     };
+
+    unsigned int indices[] = {
+        0, 1, 3,
+        1, 2, 3
+    };
+
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
 
     unsigned int VBO;
     glGenBuffers(1, &VBO);
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
+
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe mode
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe mode-nt
 
     while(!glfwWindowShouldClose(window))
     {
@@ -140,12 +152,23 @@ int main()
             GL_STATIC_DRAW
         );
 
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(
+            GL_ELEMENT_ARRAY_BUFFER,
+            sizeof(indices), 
+            indices, 
+            GL_STATIC_DRAW
+        );
+
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0);
 
         // Swap buffers!
         glfwSwapBuffers(window);
