@@ -16,6 +16,13 @@ const char* fragmentShaderSource = "#version 330 core\n"
     "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);"
     "}\0";
 
+const char* fragmentShaderSourceYellow = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "FragColor = vec4(1.0f, 0.1f, 0.0f, 1.0f);"
+    "}\0";
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -89,6 +96,7 @@ int main()
         printf("ERROR:SHADER:FRAGMENT:COMPILATION_FAILED\n%s\n", infoLog);
     }
 
+
     // Time to create a shader program
     unsigned int shaderProgram;
     shaderProgram = glCreateProgram();
@@ -122,7 +130,9 @@ int main()
          -0.8f, -0.8f, 0.0f,
          -0.7f, -0.8f, 0.0f,
          -0.75f, -0.7f, 0.0f,
+    };
 
+    float vertices1[] = {
          -0.6f, -0.6f, 0.0f,
          -0.5f, -0.6f, 0.0f,
          -0.55f, -0.5f, 0.0f,
@@ -141,6 +151,12 @@ int main()
 
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
+
+    unsigned int VBO1;
+    glGenBuffers(1, &VBO1);
+
+    unsigned int VAO1;
+    glGenVertexArrays(1, &VAO1);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe mode
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe mode-nt
@@ -162,11 +178,29 @@ int main()
             GL_STATIC_DRAW
         );
 
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        //glBufferData(
+        //    GL_ELEMENT_ARRAY_BUFFER,
+        //    sizeof(indices), 
+        //    indices, 
+        //    GL_STATIC_DRAW
+        //);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glUseProgram(shaderProgram);
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(VAO1);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO1);
         glBufferData(
-            GL_ELEMENT_ARRAY_BUFFER,
-            sizeof(indices), 
-            indices, 
+            GL_ARRAY_BUFFER,
+            sizeof(vertices1),
+            vertices1,
             GL_STATIC_DRAW
         );
 
@@ -174,13 +208,8 @@ int main()
         glEnableVertexAttribArray(0);
 
         glUseProgram(shaderProgram);
-        glBindVertexArray(VAO);
-
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
+        glBindVertexArray(VAO1);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        glDrawArrays(GL_TRIANGLES, 3, 3);
 
         glBindVertexArray(0);
 
