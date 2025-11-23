@@ -1,0 +1,14 @@
+[
+{
+  "directory": "/home/wilnil/Code/MATH-182/build",
+  "command": "/nix/store/kaj8d1zcn149m40s9h0xi0khakibiphz-gcc-wrapper-14.3.0/bin/gcc  -I/home/wilnil/Code/MATH-182/include  -o CMakeFiles/triangle.dir/src/glad.c.o -c /home/wilnil/Code/MATH-182/src/glad.c",
+  "file": "/home/wilnil/Code/MATH-182/src/glad.c",
+  "output": "CMakeFiles/triangle.dir/src/glad.c.o"
+},
+{
+  "directory": "/home/wilnil/Code/MATH-182/build",
+  "command": "/nix/store/kaj8d1zcn149m40s9h0xi0khakibiphz-gcc-wrapper-14.3.0/bin/gcc  -I/home/wilnil/Code/MATH-182/include  -o CMakeFiles/triangle.dir/src/main.c.o -c /home/wilnil/Code/MATH-182/src/main.c",
+  "file": "/home/wilnil/Code/MATH-182/src/main.c",
+  "output": "CMakeFiles/triangle.dir/src/main.c.o"
+}
+]
