@@ -96,6 +96,20 @@ int main()
         printf("ERROR:SHADER:FRAGMENT:COMPILATION_FAILED\n%s\n", infoLog);
     }
 
+    // Set up our fragment shader
+    unsigned int fragmentShaderYellow;
+    fragmentShaderYellow = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShaderYellow, 1, &fragmentShaderSourceYellow, NULL);
+    glCompileShader(fragmentShaderYellow);
+
+    // Make sure the fragment shader compiled successfully
+    glGetShaderiv(fragmentShaderYellow, GL_COMPILE_STATUS, &success);
+    if (!success)
+    {
+        glGetShaderInfoLog(fragmentShaderYellow, 512, NULL, infoLog);
+        printf("ERROR:SHADER:FRAGMENT:COMPILATION_FAILED\n%s\n", infoLog);
+    }
+
 
     // Time to create a shader program
     unsigned int shaderProgram;
@@ -113,10 +127,26 @@ int main()
         printf("ERROR:SHADER:LINK_FAILED\n%s\n", infoLog);
     }
 
+    unsigned int shaderProgramYellow;
+    shaderProgramYellow = glCreateProgram();
+
+    glAttachShader(shaderProgramYellow, vertexShader);
+    glAttachShader(shaderProgramYellow, fragmentShaderYellow);
+    glLinkProgram(shaderProgramYellow);
+
+    // Check if the linking was successful
+    glGetProgramiv(shaderProgramYellow, GL_LINK_STATUS, &success);
+    if (!success) 
+    {
+        glGetProgramInfoLog(shaderProgramYellow, 512, NULL, infoLog);
+        printf("ERROR:SHADER:LINK_FAILED\n%s\n", infoLog);
+    }
+
     //glUseProgram(shaderProgram);
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    glDeleteShader(fragmentShaderYellow);
 
     // Create a buffer and put some data in it
     float elementVertices[] = {
@@ -207,7 +237,7 @@ int main()
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
-        glUseProgram(shaderProgram);
+        glUseProgram(shaderProgramYellow);
         glBindVertexArray(VAO1);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
