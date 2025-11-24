@@ -4,27 +4,6 @@
 
 #include <shader.h>
 
-const char* vertexShaderSource = "#version 330 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-" gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-
-const char* fragmentShaderSource = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);"
-    "}\0";
-
-const char* fragmentShaderSourceYellow = "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "FragColor = vec4(1.0f, 0.1f, 0.0f, 1.0f);"
-    "}\0";
-
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -71,7 +50,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     unsigned int shaderProgram = compileShaderProgram("shaders/shader.vert", "shaders/shader.frag");
-    unsigned int shaderProgramYellow = compileShaderProgram("shaders/shader.vert", "shaders/shader.frag");
+    unsigned int shaderProgramYellow = compileShaderProgram("shaders/shader.vert", "shaders/yellowShader.frag");
 
     // Create a buffer and put some data in it
     float elementVertices[] = {
@@ -177,49 +156,3 @@ int main()
     glfwTerminate();
     return 0;
 }
-
-/*
-#include <stdlib.h>
-#include <stdio.h>
-
-#define GLAD_GL_IMPLEMENTATION // Necessary for headeronly version.
-#include <glad/gl.h>
-
-#include <GLFW/glfw3.h>
-
-
-const GLuint WIDTH = 800, HEIGHT = 600;
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-}
-
-int main(void) {
-    glfwInit();
-
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "[glad] GL with GLFW", NULL, NULL);
-    glfwMakeContextCurrent(window);
-
-    glfwSetKeyCallback(window, key_callback);
-
-    int version = gladLoadGL(glfwGetProcAddress);
-    printf("GL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
-
-    while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents();
-
-        glClearColor(0.7f, 0.9f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        glfwSwapBuffers(window);
-    }
-
-    glfwTerminate();
-
-    return 0;
-}*/
