@@ -20,3 +20,7 @@ target_link_libraries(triangle glfw)
 find_package(OpenGL REQUIRED)
 target_link_libraries(triangle OpenGL::GL)
 
+# Copy shaders over
+set(SHADER_SOURCE_DIR "${CMAKE_SOURCE_DIR}/shaders")
+set(SHADER_DEST_DIR "${CMAKE_BINARY_DIR}")
+file(COPY ${SHADER_SOURCE_DIR} DESTINATION ${SHADER_DEST_DIR})
