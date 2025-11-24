@@ -18,7 +18,7 @@ file(GLOB BUTTERFLIES_SOURCES_C ${CMAKE_CURRENT_SOURCE_DIR} src/*.c)
 find_package(glfw3 3.4 REQUIRED)
 target_link_libraries(triangle glfw)
 find_package(OpenGL REQUIRED)
-target_link_libraries(triangle OpenGL::GL)
+target_link_libraries(triangle OpenGL::GL -lm)
 
 # Copy shaders over
 set(SHADER_SOURCE_DIR "${CMAKE_SOURCE_DIR}/shaders")

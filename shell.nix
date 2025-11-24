@@ -13,6 +13,7 @@ pkgs.mkShell
     glm
     gcc
     gdb
+    glibc
   ];
 
 }

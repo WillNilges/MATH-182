@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <math.h>
 
 #include <shader.h>
 
@@ -98,13 +99,18 @@ int main()
 
     //unsigned int VAO1;
     //glGenVertexArrays(1, &VAO1);
-
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe mode
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe mode-nt
 
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
+
+        float timeValue = glfwGetTime();
+        float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
+        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        glUseProgram(shaderProgram);
+        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
         // Render stuff!!!!
         glClearColor(0.2f, 0.5f, 0.5f, 1.0f);
