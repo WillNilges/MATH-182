@@ -9,6 +9,7 @@ target_sources(triangle
   PRIVATE
     src/glad.c
     src/main.c
+    src/shader.c
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
