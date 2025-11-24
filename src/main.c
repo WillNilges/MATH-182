@@ -49,8 +49,15 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    unsigned int shaderProgram = compileShaderProgram("shaders/shader.vert", "shaders/shader.frag");
-    unsigned int shaderProgramYellow = compileShaderProgram("shaders/shader.vert", "shaders/yellowShader.frag");
+    unsigned int shaderProgram = compileShaderProgram(
+        "shaders/shader.vert",
+        "shaders/shader.frag"
+    );
+
+    //unsigned int shaderProgramYellow = compileShaderProgram(
+    //    "shaders/shader.vert",
+    //    "shaders/yellowShader.frag"
+    //);
 
     // Create a buffer and put some data in it
     float elementVertices[] = {
@@ -61,16 +68,16 @@ int main()
     };
 
     float vertices[] = {
-         -0.8f, -0.8f, 0.0f,
-         -0.7f, -0.8f, 0.0f,
-         -0.75f, -0.7f, 0.0f,
+          0.5f, -0.5f, 0.0f,
+         -0.5f, -0.5f, 0.0f,
+          0.0f, 0.5f, 0.0f,
     };
 
-    float vertices1[] = {
-         -0.6f, -0.6f, 0.0f,
-         -0.5f, -0.6f, 0.0f,
-         -0.55f, -0.5f, 0.0f,
-    };
+    //float vertices1[] = {
+    //     -0.6f, -0.6f, 0.0f,
+    //     -0.5f, -0.6f, 0.0f,
+    //     -0.55f, -0.5f, 0.0f,
+    //};
 
     unsigned int indices[] = {
         0, 1, 3,
@@ -86,11 +93,11 @@ int main()
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
 
-    unsigned int VBO1;
-    glGenBuffers(1, &VBO1);
+    //unsigned int VBO1;
+    //glGenBuffers(1, &VBO1);
 
-    unsigned int VAO1;
-    glGenVertexArrays(1, &VAO1);
+    //unsigned int VAO1;
+    //glGenVertexArrays(1, &VAO1);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe mode
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe mode-nt
@@ -129,23 +136,23 @@ int main()
 
         //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        glBindVertexArray(VAO1);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-        glBufferData(
-            GL_ARRAY_BUFFER,
-            sizeof(vertices1),
-            vertices1,
-            GL_STATIC_DRAW
-        );
+        //glBindVertexArray(VAO1);
+        //glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+        //glBufferData(
+        //    GL_ARRAY_BUFFER,
+        //    sizeof(vertices1),
+        //    vertices1,
+        //    GL_STATIC_DRAW
+        //);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
+        //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+        //glEnableVertexAttribArray(0);
 
-        glUseProgram(shaderProgramYellow);
-        glBindVertexArray(VAO1);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        //glUseProgram(shaderProgramYellow);
+        //glBindVertexArray(VAO1);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        glBindVertexArray(0);
+        //glBindVertexArray(0);
 
         // Swap buffers!
         glfwSwapBuffers(window);
