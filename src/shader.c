@@ -36,12 +36,13 @@ char* getShaderSourceFromFile(const char* filePath) {
 // A return value of 0 is an error, as it means something happened while compiling
 // the shader.
 // https://registry.khronos.org/OpenGL-Refpages/gl4/html/glCreateProgram.xhtml
-unsigned int initializeAndCompileShaderProgram(char* vertexPath, char* fragmentPath) {
+unsigned int compileShaderProgram(char* vertexPath, char* fragmentPath) {
     // Set up our vertex shader
     unsigned int vertexShader;
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     char* vertexShaderSource = getShaderSourceFromFile(vertexPath);
-    glShaderSource(vertexShader, 1, (const GLchar**)vertexShaderSource, NULL);
+    const GLchar* vertexShaderPtr = vertexShaderSource;
+    glShaderSource(vertexShader, 1, &vertexShaderPtr, NULL);
     glCompileShader(vertexShader);
 
     // Check if compilation was successful
@@ -61,7 +62,8 @@ unsigned int initializeAndCompileShaderProgram(char* vertexPath, char* fragmentP
     unsigned int fragmentShader;
     fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     char* fragmentShaderSource = getShaderSourceFromFile(fragmentPath);
-    glShaderSource(fragmentShader, 1, (const GLchar**)fragmentShaderSource, NULL);
+    const GLchar* fragmentShaderPtr = fragmentShaderSource;
+    glShaderSource(fragmentShader, 1, &fragmentShaderPtr, NULL);
     glCompileShader(fragmentShader);
 
     // Make sure the fragment shader compiled successfully

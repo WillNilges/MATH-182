@@ -11,4 +11,4 @@ typedef struct {
 } Shader;
 
 char* getShaderSourceFromFile(const char* filePath);
-unsigned int initializeAndCompileShaderProgram(char* vertexPath, char* fragmentPath);
+unsigned int compileShaderProgram(char* vertexPath, char* fragmentPath);

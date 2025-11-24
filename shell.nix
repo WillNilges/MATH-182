@@ -12,6 +12,7 @@ pkgs.mkShell
     lua
     glm
     gcc
+    gdb
   ];
 
 }
