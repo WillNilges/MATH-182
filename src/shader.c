@@ -113,7 +113,7 @@ unsigned int compileShaderProgram(char* vertexPath, char* fragmentPath) {
 
 Shader* newShader(char* vertexPath, char* fragmentPath) {
     unsigned int shaderID = compileShaderProgram(vertexPath, fragmentPath);
-    if (shaderID = 0) {
+    if (shaderID == 0) {
         printf("Shader compilation failed.\n");
         return NULL;
     }
@@ -122,6 +122,8 @@ Shader* newShader(char* vertexPath, char* fragmentPath) {
     s->ID = shaderID;
     s->vertexPath = vertexPath;
     s->fragmentPath = fragmentPath;
+
+    printf("Returning shader with ID %d", s->ID);
     return s;
 }
 
