@@ -55,11 +55,6 @@ int main()
         "shaders/shader.frag"
     );
 
-    //unsigned int shaderProgramYellow = compileShaderProgram(
-    //    "shaders/shader.vert",
-    //    "shaders/yellowShader.frag"
-    //);
-
     // Create a buffer and put some data in it
     float elementVertices[] = {
          0.5f,  0.5f, 0.0f,
@@ -69,9 +64,10 @@ int main()
     };
 
     float vertices[] = {
-          0.5f, -0.5f, 0.0f,
-         -0.5f, -0.5f, 0.0f,
-          0.0f, 0.5f, 0.0f,
+        // Positions         // Colors
+          0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
+         -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
+          0.0f, 0.5f, 0.0f,  0.0f, 0.0f, 1.0f
     };
 
     //float vertices1[] = {
@@ -108,9 +104,9 @@ int main()
 
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
-        int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        //int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
         glUseProgram(shaderProgram);
-        glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+        //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 
         // Render stuff!!!!
         glClearColor(0.2f, 0.5f, 0.5f, 1.0f);
@@ -133,8 +129,11 @@ int main()
         //    GL_STATIC_DRAW
         //);
 
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
+        glEnableVertexAttribArray(1);
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
