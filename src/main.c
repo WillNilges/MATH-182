@@ -55,6 +55,12 @@ int main()
         "shaders/shader.frag"
     );
 
+    if (shaderProgram == NULL) {
+        printf("I'm outta here!\n");
+        glfwTerminate();
+        return -1;
+    }
+
     // Create a buffer and put some data in it
     //float vertices[] = {
     //    // Positions         // Colors
@@ -89,9 +95,8 @@ int main()
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 
-        //FIXME: My struct isn't working :(
-        //shaderUse(shaderProgram);
-        //shaderSetFloat(shaderProgram, "greenFactor", greenValue);
+        shaderUse(shaderProgram);
+        shaderSetFloat(shaderProgram, "greenFactor", greenValue);
 
         // Render stuff!!!!
         glClearColor(0.2f, 0.5f, 0.5f, 1.0f);
