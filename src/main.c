@@ -97,6 +97,7 @@ int main()
 
         shaderUse(shaderProgram);
         shaderSetFloat(shaderProgram, "greenFactor", greenValue);
+        shaderSetFloat(shaderProgram, "offset", greenValue);
 
         // Render stuff!!!!
         glClearColor(0.2f, 0.5f, 0.5f, 1.0f);
