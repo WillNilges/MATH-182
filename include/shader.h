@@ -1,3 +1,5 @@
+#ifndef SHADER_H
+#define SHADER_H
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,3 +14,10 @@ typedef struct {
 
 char* getShaderSourceFromFile(const char* filePath);
 unsigned int compileShaderProgram(char* vertexPath, char* fragmentPath);
+
+Shader* newShader(char* vertexPath, char* fragmentPath);
+void shaderUse(Shader* shader);
+void shaderSetInt(Shader* shader, const char* name, int value);
+void shaderSetFloat(Shader* shader, const char* name, float value);
+
+#endif

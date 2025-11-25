@@ -110,3 +110,29 @@ unsigned int compileShaderProgram(char* vertexPath, char* fragmentPath) {
 
     return shaderProgram;
 }
+
+Shader* newShader(char* vertexPath, char* fragmentPath) {
+    unsigned int shaderID = compileShaderProgram(vertexPath, fragmentPath);
+    if (shaderID = 0) {
+        printf("Shader compilation failed.\n");
+        return NULL;
+    }
+
+    Shader* s = malloc(sizeof(Shader));
+    s->ID = shaderID;
+    s->vertexPath = vertexPath;
+    s->fragmentPath = fragmentPath;
+    return s;
+}
+
+void shaderUse(Shader* shader) {
+    glUseProgram(shader->ID);
+}
+
+void shaderSetInt(Shader* shader, const char* name, int value) {
+    glUniform1i(glGetUniformLocation(shader->ID, name), value);
+}
+
+void shaderSetFloat(Shader* shader, const char* name, float value) {
+    glUniform1f(glGetUniformLocation(shader->ID, name), value);
+}

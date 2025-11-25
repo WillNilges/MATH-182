@@ -50,7 +50,7 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    unsigned int shaderProgram = compileShaderProgram(
+    Shader* shaderProgram = newShader(
         "shaders/shader.vert",
         "shaders/shader.frag"
     );
@@ -105,8 +105,10 @@ int main()
         float timeValue = glfwGetTime();
         float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
         //int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
-        glUseProgram(shaderProgram);
+        //glUseProgram(shaderProgram);
         //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+        shaderUse(shaderProgram);
+        shaderSetFloat(shaderProgram, "greenFactor", greenValue);
 
         // Render stuff!!!!
         glClearColor(0.2f, 0.5f, 0.5f, 1.0f);
@@ -135,7 +137,7 @@ int main()
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
         glEnableVertexAttribArray(1);
 
-        glUseProgram(shaderProgram);
+        shaderUse(shaderProgram);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
