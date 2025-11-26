@@ -5,11 +5,10 @@ project(MATH-182)
 
 add_executable(triangle) # TODO: This engine should become a library eventually
 
+file(GLOB SRC_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c")
 target_sources(triangle
   PRIVATE
-    src/glad.c
-    src/main.c
-    src/shader.c
+    ${SRC_FILES}
 )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)

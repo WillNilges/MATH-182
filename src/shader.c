@@ -123,7 +123,7 @@ Shader* newShader(char* vertexPath, char* fragmentPath) {
     s->vertexPath = vertexPath;
     s->fragmentPath = fragmentPath;
 
-    printf("Returning shader with ID %d", s->ID);
+    printf("Returning shader with ID %d\n", s->ID);
     return s;
 }
 
