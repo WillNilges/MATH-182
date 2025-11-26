@@ -111,6 +111,8 @@ int main()
     glEnableVertexAttribArray(2);  
 
     // --- Textures ---
+    stbi_set_flip_vertically_on_load(1);
+    // container.jpg
     // Generate texture
     unsigned int texture;
     glGenTextures(1, &texture);
@@ -137,6 +139,33 @@ int main()
     }
     stbi_image_free(data);
 
+    // awesomeface.png
+    // Generate texture
+    unsigned int awesomeTexture;
+    glGenTextures(1, &awesomeTexture);
+    glBindTexture(GL_TEXTURE_2D, awesomeTexture);
+
+    // set the texture wrapping/filtering options (on the currently bound texture object)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load and generate the texture
+    int awesomeWidth, awesomeHeight, awesomeNrChannels;
+    unsigned char *awesomeData = stbi_load("textures/awesomeface.png", &awesomeWidth, &awesomeHeight, &awesomeNrChannels, 0);
+    if (awesomeData)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, awesomeWidth, awesomeHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, awesomeData);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        printf("Failed to load texture\n");
+        glfwTerminate();
+        return -1;
+    }
+    stbi_image_free(awesomeData);
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -146,6 +175,15 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         shaderUse(shaderProgram);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, awesomeTexture);
+
+        shaderSetInt(shaderProgram, "ourTexture", 0);
+        shaderSetInt(shaderProgram, "awesomeTexture", 1);
+
         glBindVertexArray(VAO);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
