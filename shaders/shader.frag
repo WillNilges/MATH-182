@@ -7,8 +7,11 @@ in vec2 TexCoord;
 uniform sampler2D ourTexture;
 uniform sampler2D awesomeTexture;
 
+uniform float visibility;
+
 void main()
 {
     //FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);
-    FragColor = mix(texture(ourTexture, TexCoord * 2.0), texture(awesomeTexture, vec2(TexCoord.x * 2.0, TexCoord.y * 2.0)), 0.2);
+    float scaleFactor = 1.0;
+    FragColor = mix(texture(ourTexture, TexCoord * 2.0), texture(awesomeTexture, vec2(TexCoord.x * scaleFactor, TexCoord.y * scaleFactor)), visibility);
 }
