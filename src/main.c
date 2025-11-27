@@ -203,16 +203,13 @@ int main()
         //vec3 scale = { 0.5f, 0.5f, 0.5f };
         //glm_scale(trans, scale);
 
-        // Rotate it
-        // I think this happens because matrix functions are not commutative.
-        // So translating the rotated matrix causes a translation in the
-        // direction the container considers "up"
-        vec3 axis = { 0.0f, 0.0f, 1.0f };
-        glm_rotate(trans, (float)glfwGetTime(), axis);
-
         // Translate it
         vec3 translate = { 0.5f, -0.5f, 0.0f };
         glm_translate(trans, translate);
+
+        // Rotate it
+        vec3 axis = { 0.0f, 0.0f, 1.0f };
+        glm_rotate(trans, (float)glfwGetTime(), axis);
 
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float*) trans);
 
@@ -226,6 +223,22 @@ int main()
 
         glBindVertexArray(VAO);
 
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        // Draw another triangle, but translated up and to the left
+        glm_mat4_identity(trans);
+        // Translate it
+        vec3 translateUp = { -0.5f, 0.5f, 0.0f };
+        glm_translate(trans, translateUp);
+
+        // Scale it
+        float scaleFactor = (float) sin(glfwGetTime());
+        vec3 scale = { scaleFactor, scaleFactor , 0.0f };
+        glm_scale(trans, scale);
+
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float*) trans);
+
+        // Now draw!
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Unbind our vertex array?
