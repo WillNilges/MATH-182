@@ -2,11 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <math.h>
-#include "stb_image.h"
-
 #include "cglm/cglm.h"
-
-#include <shader.h>
+#include "stb_image.h"
+#include "shader.h"
 
 float visibility = 0.2f;
 
@@ -180,11 +178,6 @@ int main()
     }
     stbi_image_free(awesomeData);
 
-    // This is the vector we want to transform
-    vec4 vec = { 1.0f, 0.0f, 0.0f, 1.0f };
-
-    unsigned int transformLoc = glGetUniformLocation(shaderProgram->ID, "transform");
-
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -196,25 +189,34 @@ int main()
         shaderUse(shaderProgram);
         shaderSetFloat(shaderProgram, "visibility", visibility);
 
-        // Create matrix for rotating and scaling
-        mat4 trans;
-        glm_mat4_identity(trans);
-        // Scale it
-        //vec3 scale = { 0.5f, 0.5f, 0.5f };
-        //glm_scale(trans, scale);
+        // --- 3D!!! --- 
+        mat4 model;
+        glm_mat4_identity(model);
+        vec3 modelAxis = { 1.0f, 0.0f, 0.0f };
+        glm_rotate(model, glm_rad(-55.0f), modelAxis);
 
-        // Translate it
-        vec3 translate = { 0.5f, -0.5f, 0.0f };
-        glm_translate(trans, translate);
+        mat4 view;
+        glm_mat4_identity(view);
+        vec3 viewTranslation = { 0.0f, 0.0f, -3.0f };
+        glm_translate(view, viewTranslation);
 
-        // Rotate it
-        vec3 axis = { 0.0f, 0.0f, 1.0f };
-        glm_rotate(trans, (float)glfwGetTime(), axis);
+        mat4 projection;
+        glm_mat4_identity(projection);
+        float fov = glm_rad(45.0f);
+        glm_perspective(fov, 800.0f/600.0f, 0.1f, 100.0f, projection);
 
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float*) trans);
+        // Send the matricies to the shaders
+        int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
+        int viewLoc = glGetUniformLocation(shaderProgram->ID, "view");
+        int projectionLoc = glGetUniformLocation(shaderProgram->ID, "projection");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float*) view);
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
+        // --- /3D ---
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
+
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, awesomeTexture);
 
@@ -223,22 +225,6 @@ int main()
 
         glBindVertexArray(VAO);
 
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
-        // Draw another triangle, but translated up and to the left
-        glm_mat4_identity(trans);
-        // Translate it
-        vec3 translateUp = { -0.5f, 0.5f, 0.0f };
-        glm_translate(trans, translateUp);
-
-        // Scale it
-        float scaleFactor = (float) sin(glfwGetTime());
-        vec3 scale = { scaleFactor, scaleFactor , 0.0f };
-        glm_scale(trans, scale);
-
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float*) trans);
-
-        // Now draw!
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Unbind our vertex array?
