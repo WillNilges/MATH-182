@@ -255,6 +255,20 @@ int main()
         {-1.3f,  1.0f, -1.5f}
     };
 
+    // Camera stuff
+    /*
+    vec3 cameraPos = { 0.0f, 0.0f, 0.0f };
+    vec3 cameraTarget = { 0.0f, 0.0f, 0.0f };
+    vec3 cameraDirection = glm_normalize(cameraPos - cameraTarget);
+
+    vec3 up = { 0.0f, 1.0f, 0.0f };
+    vec3 cameraRight = glm_normalize(glm_cross(up, cameraDirection));
+    vec3 cameraUp = glm_cross(cameraDirection, cameraRight);
+
+    mat4 view;
+    view = glm_lookat(float *eye, float *center, float *up, vec4 *dest)
+    */
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -274,8 +288,16 @@ int main()
 
         mat4 view;
         glm_mat4_identity(view);
-        vec3 viewTranslation = { view_x, view_y, view_z };
-        glm_translate(view, viewTranslation);
+        //vec3 viewTranslation = { view_x, view_y, view_z };
+        //glm_translate(view, viewTranslation);
+
+        const float radius = 10.0f;
+        float camX = sin(glfwGetTime()) * radius;
+        float camZ = cos(glfwGetTime()) * radius;
+        vec3 eye = { camX, 0.0, camZ };
+        vec3 center = { 0.0f, 0.0f, 0.0f };
+        vec3 up = { 0.0, 1.0, 0.0 };
+        glm_lookat(eye, center, up, view);
 
         mat4 projection;
         glm_mat4_identity(projection);
