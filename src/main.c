@@ -183,16 +183,6 @@ int main()
     // This is the vector we want to transform
     vec4 vec = { 1.0f, 0.0f, 0.0f, 1.0f };
 
-    // Create matrix for rotating and scaling
-    mat4 trans;
-    glm_mat4_identity(trans);
-    vec3 axis = { 0.0f, 0.0f, 1.0f };
-    glm_rotate(trans, glm_rad(90), axis);
-    vec3 scale = { 0.5f, 0.5f, 0.5f };
-    glm_scale(trans, scale);
-
-    printf("%f, %f, %f", vec[0], vec[1], vec[2]);
-
     unsigned int transformLoc = glGetUniformLocation(shaderProgram->ID, "transform");
 
     while(!glfwWindowShouldClose(window))
@@ -205,6 +195,19 @@ int main()
 
         shaderUse(shaderProgram);
         shaderSetFloat(shaderProgram, "visibility", visibility);
+
+        // Create matrix for rotating and scaling
+        mat4 trans;
+        glm_mat4_identity(trans);
+        // Scale it
+        //vec3 scale = { 0.5f, 0.5f, 0.5f };
+        //glm_scale(trans, scale);
+        // Translate it
+        vec3 translate = { 0.5f, -0.5f, 0.0f };
+        glm_translate(trans, translate);
+
+        vec3 axis = { 0.0f, 0.0f, 1.0f };
+        glm_rotate(trans, (float)glfwGetTime(), axis);
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float*) trans);
 
         glActiveTexture(GL_TEXTURE0);
