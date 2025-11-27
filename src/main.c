@@ -202,12 +202,18 @@ int main()
         // Scale it
         //vec3 scale = { 0.5f, 0.5f, 0.5f };
         //glm_scale(trans, scale);
+
+        // Rotate it
+        // I think this happens because matrix functions are not commutative.
+        // So translating the rotated matrix causes a translation in the
+        // direction the container considers "up"
+        vec3 axis = { 0.0f, 0.0f, 1.0f };
+        glm_rotate(trans, (float)glfwGetTime(), axis);
+
         // Translate it
         vec3 translate = { 0.5f, -0.5f, 0.0f };
         glm_translate(trans, translate);
 
-        vec3 axis = { 0.0f, 0.0f, 1.0f };
-        glm_rotate(trans, (float)glfwGetTime(), axis);
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float*) trans);
 
         glActiveTexture(GL_TEXTURE0);
