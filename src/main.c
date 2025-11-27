@@ -2,8 +2,6 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <math.h>
-#include "cglm/mat4.h"
-#include "cglm/vec4.h"
 #include "stb_image.h"
 
 #include "cglm/cglm.h"
@@ -182,16 +180,20 @@ int main()
     }
     stbi_image_free(awesomeData);
 
-    // This is the vector we want to translate
+    // This is the vector we want to transform
     vec4 vec = { 1.0f, 0.0f, 0.0f, 1.0f };
 
-    // This is how we create a translation matrix
+    // Create matrix for rotating and scaling
     mat4 trans;
     glm_mat4_identity(trans);
-    vec3 translation = { 90.0f, 23.0f, 0.0f };
-    glm_translate(trans, translation);
-    glm_mat4_mulv(trans, vec, vec);
+    vec3 axis = { 0.0f, 0.0f, 1.0f };
+    glm_rotate(trans, glm_rad(90), axis);
+    vec3 scale = { 0.5f, 0.5f, 0.5f };
+    glm_scale(trans, scale);
+
     printf("%f, %f, %f", vec[0], vec[1], vec[2]);
+
+    unsigned int transformLoc = glGetUniformLocation(shaderProgram->ID, "transform");
 
     while(!glfwWindowShouldClose(window))
     {
@@ -203,6 +205,7 @@ int main()
 
         shaderUse(shaderProgram);
         shaderSetFloat(shaderProgram, "visibility", visibility);
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, (float*) trans);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
