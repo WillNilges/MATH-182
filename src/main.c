@@ -309,6 +309,10 @@ int main()
             glm_translate(cubeModel, cubePositions[i]);
             float angle = 20.0f * i;
             vec3 cubeAxis = { 1.0f, 0.3f, 0.5f };
+            if (i % 3 == 0)
+            {
+                angle += glfwGetTime();
+            }
             glm_rotate(cubeModel, angle, cubeAxis);
             int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) cubeModel);
