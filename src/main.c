@@ -8,6 +8,11 @@
 
 float visibility = 0.2f;
 
+float moveSpeed = 0.1f;
+float view_x = 0.0f;
+float view_y = 0.0f;
+float view_z = -3.0f;
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -29,6 +34,26 @@ void processInput(GLFWwindow *window)
     {
         visibility -= 0.05f;
     }
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        view_z += moveSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        view_z -= moveSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        view_x += moveSpeed;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        view_x -= moveSpeed;
+    }
 }
 
 int main()
@@ -39,7 +64,9 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "MATH-182", NULL, NULL);
+    int windowWidth = 800;
+    int windowHeight = 600;
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "MATH-182", NULL, NULL);
     if (window == NULL)
     {
         printf("Failed to create GLFW window\n");
@@ -247,13 +274,13 @@ int main()
 
         mat4 view;
         glm_mat4_identity(view);
-        vec3 viewTranslation = { 0.0f, 0.0f, -3.0f };
+        vec3 viewTranslation = { view_x, view_y, view_z };
         glm_translate(view, viewTranslation);
 
         mat4 projection;
         glm_mat4_identity(projection);
-        float fov = glm_rad(45.0f);
-        glm_perspective(fov, 800.0f/600.0f, 0.1f, 100.0f, projection);
+        float fov = glm_rad(90.0f);
+        glm_perspective(fov, (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
         // Send the matricies to the shaders
         int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
