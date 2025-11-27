@@ -2,7 +2,11 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <math.h>
+#include "cglm/mat4.h"
+#include "cglm/vec4.h"
 #include "stb_image.h"
+
+#include "cglm/cglm.h"
 
 #include <shader.h>
 
@@ -177,6 +181,17 @@ int main()
         return -1;
     }
     stbi_image_free(awesomeData);
+
+    // This is the vector we want to translate
+    vec4 vec = { 1.0f, 0.0f, 0.0f, 1.0f };
+
+    // This is how we create a translation matrix
+    mat4 trans;
+    glm_mat4_identity(trans);
+    vec3 translation = { 90.0f, 23.0f, 0.0f };
+    glm_translate(trans, translation);
+    glm_mat4_mulv(trans, vec, vec);
+    printf("%f, %f, %f", vec[0], vec[1], vec[2]);
 
     while(!glfwWindowShouldClose(window))
     {
