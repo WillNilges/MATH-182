@@ -32,6 +32,8 @@ float pitch = 0.0f;
 float yaw = -90.0f;
 float roll = 0.0f;
 
+float fov = 90.0f;
+
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
@@ -71,6 +73,16 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
     glm_normalize(direction);
     glm_vec3_copy(direction,cameraFront);
+}
+
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    fov -= (float)yoffset;
+    if (fov < 1.0f)
+        fov = 1.0f;
+    if (fov > 45.0f)
+        fov = 45.0f; 
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -186,6 +198,9 @@ int main()
     // Mouse look
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);
+
+    // Scroll to zoom
+    glfwSetScrollCallback(window, scroll_callback);
 
     Shader* shaderProgram = newShader(
         "shaders/shader.vert",
@@ -404,8 +419,7 @@ int main()
 
         mat4 projection;
         glm_mat4_identity(projection);
-        float fov = glm_rad(90.0f);
-        glm_perspective(fov, (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
+        glm_perspective(glm_rad(fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
         // Send the matricies to the shaders
         int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
