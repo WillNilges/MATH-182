@@ -1,17 +1,77 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
 #include "cglm/cglm.h"
+#include "cglm/util.h"
+#include "cglm/vec3.h"
 #include "stb_image.h"
 #include "shader.h"
 
 float visibility = 0.2f;
 
+// Me messing around
 float moveSpeed = 0.1f;
 float view_x = 0.0f;
 float view_y = 0.0f;
 float view_z = -3.0f;
+
+// Camera Stuff
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+vec3 cameraPos = { 0.0f, 0.0f, 3.0f };
+vec3 cameraFront = { 0.0f, 0.0f, -1.0f };
+vec3 cameraUp = { 0.0f, 1.0f, 0.0f };
+
+// Mouse look stuff
+float lastX = 400, lastY = 300;
+bool firstMouse = true;
+
+float pitch = 0.0f;
+float yaw = -90.0f;
+float roll = 0.0f;
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensitivity = 0.1f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f)
+    {
+        pitch = 89.0f;
+    }
+
+    if (pitch < -89.0f)
+    {
+        pitch = -89.0f;
+    }
+
+    vec3 direction = {
+        cos(glm_rad(yaw)) * cos(glm_rad(pitch)),
+        sin(glm_rad(pitch)),
+        sin(glm_rad(yaw)) * cos(glm_rad(pitch))
+    };
+
+    glm_normalize(direction);
+    glm_vec3_copy(direction,cameraFront);
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -54,6 +114,39 @@ void processInput(GLFWwindow *window)
     {
         view_x -= moveSpeed;
     }
+
+
+    const float cameraSpeed = 0.1f; // adjust accordingly
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    {
+        vec3 cameraSpeedXCameraFront;
+        glm_vec3_scale(cameraFront, cameraSpeed, cameraSpeedXCameraFront);
+        glm_vec3_add(cameraPos, cameraSpeedXCameraFront, cameraPos);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    {
+        vec3 cameraSpeedXCameraFront;
+        glm_vec3_scale(cameraFront, cameraSpeed, cameraSpeedXCameraFront);
+        glm_vec3_sub(cameraPos, cameraSpeedXCameraFront, cameraPos);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    {
+        vec3 cameraFrontCrossCameraUp;
+        glm_cross(cameraFront, cameraUp, cameraFrontCrossCameraUp);
+        glm_normalize(cameraFrontCrossCameraUp);
+
+        glm_vec3_scale(cameraFrontCrossCameraUp, cameraSpeed, cameraFrontCrossCameraUp);
+        glm_vec3_sub(cameraPos, cameraFrontCrossCameraUp, cameraPos);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    {
+        vec3 cameraFrontCrossCameraUp;
+        glm_cross(cameraFront, cameraUp, cameraFrontCrossCameraUp);
+        glm_normalize(cameraFrontCrossCameraUp);
+
+        glm_vec3_scale(cameraFrontCrossCameraUp, cameraSpeed, cameraFrontCrossCameraUp);
+        glm_vec3_add(cameraPos, cameraFrontCrossCameraUp, cameraPos);
+    }
 }
 
 int main()
@@ -89,6 +182,10 @@ int main()
     glViewport(0, 0, 800, 600);
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    // Mouse look
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     Shader* shaderProgram = newShader(
         "shaders/shader.vert",
@@ -273,6 +370,10 @@ int main()
     {
         processInput(window);
 
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         // Render stuff!!!!
         glClearColor(0.2f, 0.5f, 0.5f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -291,13 +392,15 @@ int main()
         //vec3 viewTranslation = { view_x, view_y, view_z };
         //glm_translate(view, viewTranslation);
 
-        const float radius = 10.0f;
-        float camX = sin(glfwGetTime()) * radius;
-        float camZ = cos(glfwGetTime()) * radius;
-        vec3 eye = { camX, 0.0, camZ };
-        vec3 center = { 0.0f, 0.0f, 0.0f };
-        vec3 up = { 0.0, 1.0, 0.0 };
-        glm_lookat(eye, center, up, view);
+        //const float radius = 10.0f;
+        //float camX = sin(glfwGetTime()) * radius;
+        //float camZ = cos(glfwGetTime()) * radius;
+        //vec3 eye = { camX, 0.0, camZ };
+        vec3 center;
+        glm_vec3_add(cameraPos, cameraFront, center);
+        //vec3 up = { 0.0, 1.0, 0.0 };
+
+        glm_lookat(cameraPos, center, cameraUp, view);
 
         mat4 projection;
         glm_mat4_identity(projection);
