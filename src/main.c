@@ -48,18 +48,39 @@ void lookAt(vec3 eye, vec3 center, vec3 up, mat4 dest)
                          {3,  7, 11, 15}}
      * */
     // I think this is column-major
-    cameraPosition[3][0] = -1.0f * eye[0];
-    cameraPosition[3][1] = -1.0f * eye[1];
-    cameraPosition[3][2] = -1.0f * eye[2];
+    cameraPosition[3][0] = -eye[0];
+    cameraPosition[3][1] = -eye[1];
+    cameraPosition[3][2] = -eye[2];
 
     // Create right vector
     vec3 dir;
-    glm_vec3_sub(eye, center, dir);
-    glm_vec3_norm(dir);
+    glm_vec3_sub(center, eye, dir);
+    glm_vec3_normalize(dir);
 
     vec3 right;
-    glm_vec3_cross(up, dir, right);
-    glm_vec3_norm(right);
+    glm_vec3_crossn(dir, up, right);
+
+    vec3 u;
+    glm_vec3_cross(right, dir, u);
+
+    dest[0][0] = right[0];
+    dest[0][1] = u[0];
+    dest[0][2] =-dir[0];
+    dest[1][0] = right[1];
+    dest[1][1] = u[1];
+    dest[1][2] =-dir[1];
+    dest[2][0] = right[2];
+    dest[2][1] = u[2];
+    dest[2][2] =-dir[2];
+    dest[3][0] =-glm_vec3_dot(right, eye);
+    dest[3][1] =-glm_vec3_dot(u, eye);
+    dest[3][2] = glm_vec3_dot(dir, eye);
+    dest[0][3] = dest[1][3] = dest[2][3] = 0.0f;
+    dest[3][3] = 1.0f;
+
+
+
+    /*
 
     rightUpDirection[0][0] = right[0];
     rightUpDirection[1][0] = right[1];
@@ -76,6 +97,7 @@ void lookAt(vec3 eye, vec3 center, vec3 up, mat4 dest)
 
     // Multiply the matricies, right to left
     glm_mat4_mul(cameraPosition, rightUpDirection, dest);
+    */
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
