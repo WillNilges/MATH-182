@@ -9,15 +9,11 @@
 #include "stb_image.h"
 #include "shader.h"
 
+// Epic face opacity
 float visibility = 0.2f;
 
-// Me messing around
-float moveSpeed = 0.1f;
-float view_x = 0.0f;
-float view_y = 0.0f;
-float view_z = -3.0f;
-
 // Camera Stuff
+const float cameraSpeed = 0.1f; // adjust accordingly
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 vec3 cameraPos = { 0.0f, 0.0f, 3.0f };
@@ -109,36 +105,16 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        view_z += moveSpeed;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        view_z -= moveSpeed;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        view_x += moveSpeed;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        view_x -= moveSpeed;
-    }
-
-
-    const float cameraSpeed = 0.1f; // adjust accordingly
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
         vec3 cameraSpeedXCameraFront;
         glm_vec3_scale(cameraFront, cameraSpeed, cameraSpeedXCameraFront);
+        cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
         glm_vec3_add(cameraPos, cameraSpeedXCameraFront, cameraPos);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
         vec3 cameraSpeedXCameraFront;
         glm_vec3_scale(cameraFront, cameraSpeed, cameraSpeedXCameraFront);
+        cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
         glm_vec3_sub(cameraPos, cameraSpeedXCameraFront, cameraPos);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -148,6 +124,7 @@ void processInput(GLFWwindow *window)
         glm_normalize(cameraFrontCrossCameraUp);
 
         glm_vec3_scale(cameraFrontCrossCameraUp, cameraSpeed, cameraFrontCrossCameraUp);
+        cameraFrontCrossCameraUp[1] == 0.0f; // No vertical movement
         glm_vec3_sub(cameraPos, cameraFrontCrossCameraUp, cameraPos);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
@@ -157,6 +134,7 @@ void processInput(GLFWwindow *window)
         glm_normalize(cameraFrontCrossCameraUp);
 
         glm_vec3_scale(cameraFrontCrossCameraUp, cameraSpeed, cameraFrontCrossCameraUp);
+        cameraFrontCrossCameraUp[1] == 0.0f; // No vertical movement
         glm_vec3_add(cameraPos, cameraFrontCrossCameraUp, cameraPos);
     }
 }
