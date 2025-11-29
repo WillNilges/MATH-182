@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "cglm/cglm.h"
+#include "cglm/mat4.h"
 #include "cglm/util.h"
 #include "cglm/vec3.h"
 #include "stb_image.h"
@@ -29,6 +30,53 @@ float yaw = -90.0f;
 float roll = 0.0f;
 
 float fov = 90.0f;
+
+void lookAt(vec3 eye, vec3 center, vec3 up, mat4 dest)
+{
+    // Remember, multiply right to left
+
+    // We create the two matricies we need to multiply.
+    mat4 cameraPosition, rightUpDirection;
+    glm_mat4_identity(cameraPosition);
+    glm_mat4_identity(rightUpDirection);
+
+    // Construct Camera Position Matrix. Use glm_mat4_make, which is column-wise
+    /*
+     *Input : mat[][] = {{0,  4,  8, 12}, 
+                         {1,  5,  9, 13}, 
+                         {2,  6, 10, 14},
+                         {3,  7, 11, 15}}
+     * */
+    // I think this is column-major
+    cameraPosition[3][0] = -1.0f * eye[0];
+    cameraPosition[3][1] = -1.0f * eye[1];
+    cameraPosition[3][2] = -1.0f * eye[2];
+
+    // Create right vector
+    vec3 dir;
+    glm_vec3_sub(eye, center, dir);
+    glm_vec3_norm(dir);
+
+    vec3 right;
+    glm_vec3_cross(up, dir, right);
+    glm_vec3_norm(right);
+
+    rightUpDirection[0][0] = right[0];
+    rightUpDirection[1][0] = right[1];
+    rightUpDirection[2][0] = right[2];
+
+    // Create up vector
+    rightUpDirection[0][1] = up[0];
+    rightUpDirection[1][1] = up[1];
+    rightUpDirection[2][1] = up[2];
+
+    rightUpDirection[0][2] = center[0];
+    rightUpDirection[1][2] = center[1];
+    rightUpDirection[2][2] = center[2];
+
+    // Multiply the matricies, right to left
+    glm_mat4_mul(cameraPosition, rightUpDirection, dest);
+}
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -68,7 +116,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     };
 
     glm_normalize(direction);
-    glm_vec3_copy(direction,cameraFront);
+    glm_vec3_copy(direction, cameraFront);
 }
 
 
@@ -393,7 +441,8 @@ int main()
         glm_vec3_add(cameraPos, cameraFront, center);
         //vec3 up = { 0.0, 1.0, 0.0 };
 
-        glm_lookat(cameraPos, center, cameraUp, view);
+        //glm_lookat(cameraPos, center, cameraUp, view);
+        lookAt(cameraPos, center, cameraUp, view);
 
         mat4 projection;
         glm_mat4_identity(projection);
