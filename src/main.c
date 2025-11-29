@@ -52,6 +52,9 @@ void lookAt(vec3 eye, vec3 center, vec3 up, mat4 dest)
     cameraPosition[3][1] = -eye[1];
     cameraPosition[3][2] = -eye[2];
 
+    // f = dir
+    // s = right
+
     // Create right vector
     vec3 dir;
     glm_vec3_sub(center, eye, dir);
@@ -63,41 +66,21 @@ void lookAt(vec3 eye, vec3 center, vec3 up, mat4 dest)
     vec3 u;
     glm_vec3_cross(right, dir, u);
 
-    dest[0][0] = right[0];
-    dest[0][1] = u[0];
-    dest[0][2] =-dir[0];
-    dest[1][0] = right[1];
-    dest[1][1] = u[1];
-    dest[1][2] =-dir[1];
-    dest[2][0] = right[2];
-    dest[2][1] = u[2];
-    dest[2][2] =-dir[2];
-    dest[3][0] =-glm_vec3_dot(right, eye);
-    dest[3][1] =-glm_vec3_dot(u, eye);
-    dest[3][2] = glm_vec3_dot(dir, eye);
-    dest[0][3] = dest[1][3] = dest[2][3] = 0.0f;
-    dest[3][3] = 1.0f;
-
-
-
-    /*
-
     rightUpDirection[0][0] = right[0];
     rightUpDirection[1][0] = right[1];
     rightUpDirection[2][0] = right[2];
 
     // Create up vector
-    rightUpDirection[0][1] = up[0];
-    rightUpDirection[1][1] = up[1];
-    rightUpDirection[2][1] = up[2];
+    rightUpDirection[0][1] = u[0];
+    rightUpDirection[1][1] = u[1];
+    rightUpDirection[2][1] = u[2];
 
-    rightUpDirection[0][2] = center[0];
-    rightUpDirection[1][2] = center[1];
-    rightUpDirection[2][2] = center[2];
+    rightUpDirection[0][2] = -dir[0];
+    rightUpDirection[1][2] = -dir[1];
+    rightUpDirection[2][2] = -dir[2];
 
     // Multiply the matricies, right to left
-    glm_mat4_mul(cameraPosition, rightUpDirection, dest);
-    */
+    glm_mat4_mul(rightUpDirection, cameraPosition, dest);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
