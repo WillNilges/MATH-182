@@ -89,6 +89,18 @@ void processInput(GLFWwindow *window)
     {
         cameraProcessKeyboard(camera, UP, deltaTime);
     }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+    {
+        cameraProcessKeyboard(camera, DOWN, deltaTime);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+    {
+        camera->sprinting = true;
+    } else {
+        camera->sprinting = false;
+    }
 }
 
 int main()

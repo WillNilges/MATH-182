@@ -4,6 +4,7 @@
 
 float CAMERA_MAX_FOV = 90.0f;
 float CAMERA_SPEED = 1.0f;
+float CAMERA_SPRINT_MULTIPLIER = 5.0f;
 
 Camera* newCameraWithDefaults()
 {
@@ -22,6 +23,7 @@ Camera* newCameraWithDefaults()
     cam->fov = fov;
     cam->sensitivity = sensitivity;
     cam->speed = CAMERA_SPEED;
+    cam->sprinting = false;
 
     return cam;
 }
@@ -53,7 +55,12 @@ void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float 
     vec3 cameraSpeedXCameraFront;
     vec3 cameraRight;
     vec3 upVec;
-    float velocity = camera->speed * deltaTime;
+    float speed = camera->speed;
+    if (camera->sprinting)
+    {
+        speed *= CAMERA_SPRINT_MULTIPLIER;
+    }
+    float velocity = speed * deltaTime;
 
     switch (direction) {
         case FORWARD:
@@ -61,11 +68,13 @@ void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float 
             //cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
             glm_vec3_add(camera->pos, cameraSpeedXCameraFront, camera->pos);
             break;
+
         case BACKWARD:
             glm_vec3_scale(camera->front, velocity, cameraSpeedXCameraFront);
             //cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
             glm_vec3_sub(camera->pos, cameraSpeedXCameraFront, camera->pos);
             break;
+
         case LEFT:
             glm_cross(camera->front, camera->up, cameraRight);
             glm_normalize(cameraRight);
@@ -73,6 +82,7 @@ void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float 
             //cameraRight[1] = 0.0f; // No vertical movement
             glm_vec3_sub(camera->pos, cameraRight, camera->pos);
             break;
+
         case RIGHT:
             glm_cross(camera->front, camera->up, cameraRight);
             glm_normalize(cameraRight);
@@ -80,9 +90,17 @@ void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float 
             //cameraRight[1] = 0.0f; // No vertical movement
             glm_vec3_add(camera->pos, cameraRight, camera->pos);
             break;
+
         case UP:
             glm_vec3_scale(camera->worldUp, velocity, upVec);
             glm_vec3_add(camera->pos, upVec, camera->pos);
+            break;
+
+        case DOWN:
+            glm_vec3_scale(camera->worldUp, velocity, upVec);
+            glm_vec3_sub(camera->pos, upVec, camera->pos);
+            break;
+
         default:
             break;
     }

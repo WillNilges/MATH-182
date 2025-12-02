@@ -28,6 +28,8 @@ typedef struct {
     float speed;
     float fov; // Degrees
     float sensitivity;
+
+    bool sprinting;
 } Camera;
 
 Camera* newCameraWithDefaults();
