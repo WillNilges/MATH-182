@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include "cglm/cglm.h"
 
-float CAMERA_MAX_FOV = 90.0f;
-
 enum CameraMovement {
     FORWARD,
     BACKWARD,

@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "cglm/cglm.h"
+#include "cglm/io.h"
 #include "stb_image.h"
 #include "shader.h"
 #include "camera.h"
@@ -69,6 +70,7 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
+        printf("Got key W\n");
         cameraProcessKeyboard(camera, FORWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -294,20 +296,6 @@ int main()
         {-1.3f,  1.0f, -1.5f}
     };
 
-    // Camera stuff
-    /*
-    vec3 cameraPos = { 0.0f, 0.0f, 0.0f };
-    vec3 cameraTarget = { 0.0f, 0.0f, 0.0f };
-    vec3 cameraDirection = glm_normalize(cameraPos - cameraTarget);
-
-    vec3 up = { 0.0f, 1.0f, 0.0f };
-    vec3 cameraRight = glm_normalize(glm_cross(up, cameraDirection));
-    vec3 cameraUp = glm_cross(cameraDirection, cameraRight);
-
-    mat4 view;
-    view = glm_lookat(float *eye, float *center, float *up, vec4 *dest)
-    */
-
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -327,7 +315,7 @@ int main()
         mat4 model;
         glm_mat4_identity(model);
         vec3 modelAxis = { 0.5f, 1.0f, 0.0f };
-        glm_rotate(model, (float) glfwGetTime() * glm_rad(50.0f), modelAxis);
+        glm_rotate(model, (float) currentFrame * glm_rad(50.0f), modelAxis);
 
         mat4 view;
         cameraGetViewMatrix(camera, view);
