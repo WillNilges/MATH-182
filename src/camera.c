@@ -1,7 +1,6 @@
 #include "camera.h"
 #include "cglm/io.h"
 #include "cglm/vec3.h"
-#include <stdio.h>
 
 float CAMERA_MAX_FOV = 90.0f;
 float CAMERA_SPEED = 1.0f;
@@ -29,10 +28,6 @@ Camera* newCameraWithDefaults()
 
 Camera* newCamera(vec3 pos, vec3 front, vec3 up, float yaw, float pitch)
 {
-    //vec3 pos = { 0.0f, 0.0f, 3.0f };
-    //vec3 front = { 0.0f, 0.0f, -1.0f };
-    //vec3 up = { 0.0f, 1.0f, 0.0f };
-
     Camera* camera = malloc(sizeof(Camera));
     glm_vec3_copy(pos, camera->pos);
     glm_vec3_copy(front, camera->front);
@@ -56,46 +51,43 @@ void cameraGetViewMatrix(Camera* camera, mat4 view)
 void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float deltaTime)
 {
     vec3 cameraSpeedXCameraFront;
-    vec3 cameraFrontCrossCameraUp;
+    vec3 cameraRight;
+    vec3 upVec;
     float velocity = camera->speed * deltaTime;
 
     switch (direction) {
         case FORWARD:
-            printf("Forward\n");
             glm_vec3_scale(camera->front, velocity, cameraSpeedXCameraFront);
             //cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
             glm_vec3_add(camera->pos, cameraSpeedXCameraFront, camera->pos);
             break;
         case BACKWARD:
-            printf("Backward\n");
             glm_vec3_scale(camera->front, velocity, cameraSpeedXCameraFront);
             //cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
             glm_vec3_sub(camera->pos, cameraSpeedXCameraFront, camera->pos);
             break;
         case LEFT:
-            printf("Left\n");
-            glm_cross(camera->front, camera->up, cameraFrontCrossCameraUp);
-            glm_normalize(cameraFrontCrossCameraUp);
-            glm_vec3_scale(cameraFrontCrossCameraUp, velocity, cameraFrontCrossCameraUp);
-            //cameraFrontCrossCameraUp[1] = 0.0f; // No vertical movement
-            glm_vec3_sub(camera->pos, cameraFrontCrossCameraUp, camera->pos);
+            glm_cross(camera->front, camera->up, cameraRight);
+            glm_normalize(cameraRight);
+            glm_vec3_scale(cameraRight, velocity, cameraRight);
+            //cameraRight[1] = 0.0f; // No vertical movement
+            glm_vec3_sub(camera->pos, cameraRight, camera->pos);
             break;
         case RIGHT:
-            printf("Right\n");
-            glm_cross(camera->front, camera->up, cameraFrontCrossCameraUp);
-            glm_normalize(cameraFrontCrossCameraUp);
-            glm_vec3_scale(cameraFrontCrossCameraUp, velocity, cameraFrontCrossCameraUp);
-            //cameraFrontCrossCameraUp[1] = 0.0f; // No vertical movement
-            glm_vec3_add(camera->pos, cameraFrontCrossCameraUp, camera->pos);
+            glm_cross(camera->front, camera->up, cameraRight);
+            glm_normalize(cameraRight);
+            glm_vec3_scale(cameraRight, velocity, cameraRight);
+            //cameraRight[1] = 0.0f; // No vertical movement
+            glm_vec3_add(camera->pos, cameraRight, camera->pos);
             break;
+        case UP:
+            glm_vec3_scale(camera->worldUp, velocity, upVec);
+            glm_vec3_add(camera->pos, upVec, camera->pos);
         default:
             break;
     }
 
-    printf("Updating vectors\n");
-
     cameraUpdateVectors(camera);
-    glm_vec3_print(camera->pos, stderr);
 }
 
 void cameraProcessMouse(Camera* camera, float xOffset, float yOffset, bool constrainPitch)
