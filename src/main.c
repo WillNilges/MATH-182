@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
+#include "camera.h"
 #include "cglm/cglm.h"
 #include "stb_image.h"
 #include "shader.h"
@@ -10,24 +11,16 @@
 // Epic face opacity
 float visibility = 0.2f;
 
-// Camera Stuff
-const float cameraSpeed = 0.1f; // adjust accordingly
+// Wall-clock time for correct movement
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-vec3 cameraPos = { 0.0f, 0.0f, 3.0f };
-vec3 cameraFront = { 0.0f, 0.0f, -1.0f };
-vec3 cameraUp = { 0.0f, 1.0f, 0.0f };
+
+// Camera Stuff
+Camera* camera = newCameraWithDefaults();
 
 // Mouse look stuff
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
-
-float pitch = 0.0f;
-float yaw = -90.0f;
-float roll = 0.0f;
-
-float fov = 90.0f;
-float sensitivity = 0.1f;
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
@@ -43,40 +36,13 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    if (pitch > 89.0f)
-    {
-        pitch = 89.0f;
-    }
-
-    if (pitch < -89.0f)
-    {
-        pitch = -89.0f;
-    }
-
-    vec3 direction = {
-        cos(glm_rad(yaw)) * cos(glm_rad(pitch)),
-        sin(glm_rad(pitch)),
-        sin(glm_rad(yaw)) * cos(glm_rad(pitch))
-    };
-
-    glm_normalize(direction);
-    glm_vec3_copy(direction, cameraFront);
+    cameraProcessMouse(camera, xoffset, yoffset, true);
 }
 
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    fov -= (float)yoffset;
-    if (fov < 1.0f)
-        fov = 1.0f;
-    if (fov > 45.0f)
-        fov = 45.0f; 
+    cameraProcessScroll(camera, yoffset);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -103,37 +69,19 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        vec3 cameraSpeedXCameraFront;
-        glm_vec3_scale(cameraFront, cameraSpeed, cameraSpeedXCameraFront);
-        cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
-        glm_vec3_add(cameraPos, cameraSpeedXCameraFront, cameraPos);
+        cameraProcessKeyboard(camera, FORWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        vec3 cameraSpeedXCameraFront;
-        glm_vec3_scale(cameraFront, cameraSpeed, cameraSpeedXCameraFront);
-        cameraSpeedXCameraFront[1] = 0.0f; // No vertical movement
-        glm_vec3_sub(cameraPos, cameraSpeedXCameraFront, cameraPos);
+        cameraProcessKeyboard(camera, BACKWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        vec3 cameraFrontCrossCameraUp;
-        glm_cross(cameraFront, cameraUp, cameraFrontCrossCameraUp);
-        glm_normalize(cameraFrontCrossCameraUp);
-
-        glm_vec3_scale(cameraFrontCrossCameraUp, cameraSpeed, cameraFrontCrossCameraUp);
-        cameraFrontCrossCameraUp[1] == 0.0f; // No vertical movement
-        glm_vec3_sub(cameraPos, cameraFrontCrossCameraUp, cameraPos);
+        cameraProcessKeyboard(camera, LEFT, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        vec3 cameraFrontCrossCameraUp;
-        glm_cross(cameraFront, cameraUp, cameraFrontCrossCameraUp);
-        glm_normalize(cameraFrontCrossCameraUp);
-
-        glm_vec3_scale(cameraFrontCrossCameraUp, cameraSpeed, cameraFrontCrossCameraUp);
-        cameraFrontCrossCameraUp[1] == 0.0f; // No vertical movement
-        glm_vec3_add(cameraPos, cameraFrontCrossCameraUp, cameraPos);
+        cameraProcessKeyboard(camera, RIGHT, deltaTime);
     }
 }
 
@@ -379,20 +327,7 @@ int main()
         glm_rotate(model, (float) glfwGetTime() * glm_rad(50.0f), modelAxis);
 
         mat4 view;
-        glm_mat4_identity(view);
-        //vec3 viewTranslation = { view_x, view_y, view_z };
-        //glm_translate(view, viewTranslation);
-
-        //const float radius = 10.0f;
-        //float camX = sin(glfwGetTime()) * radius;
-        //float camZ = cos(glfwGetTime()) * radius;
-        //vec3 eye = { camX, 0.0, camZ };
-        vec3 center;
-        glm_vec3_add(cameraPos, cameraFront, center);
-        //vec3 up = { 0.0, 1.0, 0.0 };
-
-        glm_lookat(cameraPos, center, cameraUp, view);
-        //lookAt(cameraPos, center, cameraUp, view);
+        cameraGetViewMatrix(camera, view);
 
         mat4 projection;
         glm_mat4_identity(projection);

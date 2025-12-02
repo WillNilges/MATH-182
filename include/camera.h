@@ -30,6 +30,7 @@ typedef struct {
     float sensitivity;
 } Camera;
 
+Camera* newCameraWithDefaults();
 Camera* newCamera(vec3 pos, vec3 front, vec3 up, float yaw, float pitch);
 void cameraGetViewMatrix(Camera* camera, mat4 dest);
 void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float deltaTime);

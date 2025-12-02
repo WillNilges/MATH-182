@@ -1,13 +1,28 @@
 #include "camera.h"
 #include "cglm/vec3.h"
 
+Camera* newCameraWithDefaults()
+{
+    vec3 pos = { 0.0f, 0.0f, 3.0f };
+    vec3 front = { 0.0f, 0.0f, -1.0f };
+    vec3 up = { 0.0f, 1.0f, 0.0f };
+
+    float pitch = 0.0f;
+    float yaw = -90.0f;
+
+    float fov = 90.0f;
+    float sensitivity = 0.1f;
+
+    return newCamera(pos, front, up, yaw, pitch);
+}
+
 Camera* newCamera(vec3 pos, vec3 front, vec3 up, float yaw, float pitch)
 {
     //vec3 pos = { 0.0f, 0.0f, 3.0f };
     //vec3 front = { 0.0f, 0.0f, -1.0f };
     //vec3 up = { 0.0f, 1.0f, 0.0f };
 
-    Camera* camera = malloc(sizeof(camera));
+    Camera* camera = malloc(sizeof(Camera));
     glm_vec3_copy(pos, camera->pos);
     glm_vec3_copy(front, camera->front);
     glm_vec3_copy(up, camera->up);
@@ -54,6 +69,8 @@ void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float 
             glm_vec3_add(camera->pos, cameraFrontCrossCameraUp, camera->pos);
         default:
     }
+
+    cameraUpdateVectors(camera);
 }
 
 void cameraProcessMouse(Camera* camera, float xOffset, float yOffset, bool constrainPitch)
@@ -83,6 +100,7 @@ void cameraProcessMouse(Camera* camera, float xOffset, float yOffset, bool const
     glm_normalize(direction);
     glm_vec3_copy(direction, camera->front);
 
+    cameraUpdateVectors(camera);
 }
 
 void cameraProcessScroll(Camera* camera, float yOffset)
