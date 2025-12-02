@@ -1,8 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
-#include "cglm/cglm.h"
-#include <stdbool.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include "cglm/cglm.h"
 
 float CAMERA_MAX_FOV = 90.0f;
 

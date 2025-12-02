@@ -1,4 +1,4 @@
-#include <shader.h>
+#include "shader.h"
 // Open and read the content of your shader files. Returns a char* containing
 // the data from the shader.
 // https://moderncprogramming.com/loading-a-glsl-shader-from-file-in-opengl-using-pure-c/

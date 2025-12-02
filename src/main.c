@@ -3,10 +3,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
-#include "camera.h"
 #include "cglm/cglm.h"
 #include "stb_image.h"
 #include "shader.h"
+#include "camera.h"
 
 // Epic face opacity
 float visibility = 0.2f;
@@ -16,7 +16,7 @@ float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
 // Camera Stuff
-Camera* camera = newCameraWithDefaults();
+Camera* camera;
 
 // Mouse look stuff
 float lastX = 400, lastY = 300;
@@ -125,6 +125,9 @@ int main()
 
     // Scroll to zoom
     glfwSetScrollCallback(window, scroll_callback);
+
+    // Initialize the camera
+    camera = newCameraWithDefaults();
 
     Shader* shaderProgram = newShader(
         "shaders/shader.vert",
@@ -331,7 +334,7 @@ int main()
 
         mat4 projection;
         glm_mat4_identity(projection);
-        glm_perspective(glm_rad(fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
+        glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
         // Send the matricies to the shaders
         int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
