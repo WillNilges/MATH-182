@@ -261,7 +261,7 @@ int main()
 
     // We need to define a point that the light emmenates from. This should
     // be the same as the position of the cube that represents the light.
-    vec3 lightPos = { 1.2f, 3.0f, -3.5f };
+    vec3 lightPos = { 1.2f, 3.0f, -7.5f };
     vec3 cubeLightPositions[] = {
         { lightPos[0], lightPos[1], lightPos[2] }
     };
@@ -293,6 +293,7 @@ int main()
         shaderSetVec3(shaderProgram, "objectColor", 1.0f, 1.0f, 0.0f);
         shaderSetVec3(shaderProgram, "lightColor", lightColor[0], lightColor[1], lightColor[2]);
         shaderSetVec3(shaderProgram, "lightPos", lightPos[0], lightPos[1], lightPos[2]);
+        shaderSetVec3(shaderProgram, "viewPos", camera->pos[0], camera->pos[1], camera->pos[2]);
 
         // --- 3D!!! ---
         //mat4 model;
@@ -322,6 +323,15 @@ int main()
             mat4 cubeModel;
             glm_mat4_identity(cubeModel);
             glm_translate(cubeModel, cubePositions[i]);
+            /*
+            float angle = 20.0f * i;
+            vec3 cubeAxis = { 1.0f, 0.3f, 0.5f };
+            if (i % 3 == 0)
+            {
+                angle += glfwGetTime();
+            }
+            glm_rotate(cubeModel, angle, cubeAxis);
+            */
             int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) cubeModel);
 
