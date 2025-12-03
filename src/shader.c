@@ -127,14 +127,27 @@ Shader* newShader(char* vertexPath, char* fragmentPath) {
     return s;
 }
 
-void shaderUse(Shader* shader) {
+void shaderUse(Shader* shader) 
+{
     glUseProgram(shader->ID);
 }
 
-void shaderSetInt(Shader* shader, const char* name, int value) {
+void shaderSetInt(Shader* shader, const char* name, int value) 
+{
     glUniform1i(glGetUniformLocation(shader->ID, name), value);
 }
 
-void shaderSetFloat(Shader* shader, const char* name, float value) {
+void shaderSetFloat(Shader* shader, const char* name, float value) 
+{
     glUniform1f(glGetUniformLocation(shader->ID, name), value);
+}
+
+void shaderSetVec3(Shader* shader, const char* name, float x, float y, float z)
+{
+    glUniform3f(glGetUniformLocation(shader->ID, name), x, y, z);
+}
+
+void shaderSetVec4(Shader* shader, const char* name, float x, float y, float z, float w)
+{
+    glUniform4f(glGetUniformLocation(shader->ID, name), x, y, z, w);
 }

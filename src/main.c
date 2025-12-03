@@ -3,8 +3,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <math.h>
+#include "cglm/affine.h"
 #include "cglm/cglm.h"
 #include "cglm/io.h"
+#include "cglm/types.h"
 #include "stb_image.h"
 #include "shader.h"
 #include "camera.h"
@@ -160,7 +162,19 @@ int main()
         return -1;
     }
 
-    // Create a buffer and put some data in it
+    Shader* lightSourceShaderProgram = newShader(
+        "shaders/shader.vert",
+        "shaders/lightSource.frag"
+    );
+
+    if (lightSourceShaderProgram == NULL) {
+        printf("I'm outta here!\n");
+        glfwTerminate();
+        return -1;
+    }
+
+    // Create a buffer and put some data in it. This is our cube "model"
+    // with some texture data attached.
     float vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -205,15 +219,16 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    unsigned int VAO, VBO;//, EBO;
+    // Create Vertex Array Objects and Vertex Buffer Objects
+    unsigned int VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    //glGenBuffers(1, &EBO);
 
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe mode
     //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe mode-nt
 
     glBindVertexArray(VAO);
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(
         GL_ARRAY_BUFFER,
@@ -222,90 +237,30 @@ int main()
         GL_STATIC_DRAW
     );
 
-    // No indices
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glBufferData(
-    //    GL_ELEMENT_ARRAY_BUFFER,
-    //    sizeof(indices), 
-    //    indices, 
-    //    GL_STATIC_DRAW
-    //);
-
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // No uhhhhh color information?
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3 * sizeof(float)));
-    //glEnableVertexAttribArray(1);
-
-    // no uhhhh texture information
-    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    //glEnableVertexAttribArray(1);  
-
-    // --- Textures ---
-    /*
-    stbi_set_flip_vertically_on_load(1);
-    // container.jpg
-    // Generate texture
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // load and generate the texture
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("textures/container.jpg", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        printf("Failed to load texture\n");
-        glfwTerminate();
-        return -1;
-    }
-    stbi_image_free(data);
-
-    // awesomeface.png
-    // Generate texture
-    unsigned int awesomeTexture;
-    glGenTextures(1, &awesomeTexture);
-    glBindTexture(GL_TEXTURE_2D, awesomeTexture);
-
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load and generate the texture
-    int awesomeWidth, awesomeHeight, awesomeNrChannels;
-    unsigned char *awesomeData = stbi_load("textures/awesomeface.png", &awesomeWidth, &awesomeHeight, &awesomeNrChannels, 0);
-    if (awesomeData)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, awesomeWidth, awesomeHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, awesomeData);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        printf("Failed to load texture\n");
-        glfwTerminate();
-        return -1;
-    }
-    stbi_image_free(awesomeData);
-    */
+    // Need another VAO for the light
+    unsigned int lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    // Bind the original buffer, because it already contains the data.
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
     // Enable Depth Buffer
     glEnable(GL_DEPTH_TEST);
 
-    // Lots of cubes
+    // We need to define a point that the light emmenates from. This should
+    // be the same as the position of the cube that represents the light.
+    vec3 lightPos = { 1.2f, 1.0f, 2.0f };
+    vec3 cubeLightPositions[] = {
+        { lightPos[0], lightPos[1], lightPos[2] }
+    };
+
+    // And a cube to be hit by the light
     vec3 cubePositions[] = {
-        { 0.0f,  0.0f,  0.0f}, 
         { 2.0f,  5.0f, -3.0f}, 
     };
 
@@ -320,17 +275,20 @@ int main()
         lastFrame = currentFrame;
 
         // Render stuff!!!!
-        glClearColor(0.2f, 0.5f, 0.5f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        // COOL ASS FUCKING CUBE
+        vec3 lightColor = { 1.0f, 1.0f, 1.0f };
+
+        // Shader for the cuuuuubes!
         shaderUse(shaderProgram);
-        shaderSetFloat(shaderProgram, "visibility", visibility);
+        shaderSetVec3(shaderProgram, "objectColor", 1.0f, 1.0f, 0.0f);
+        shaderSetVec3(shaderProgram, "lightColor", lightColor[0], lightColor[1], lightColor[2]);
 
         // --- 3D!!! --- 
         mat4 model;
         glm_mat4_identity(model);
-        vec3 modelAxis = { 0.5f, 1.0f, 0.0f };
-        glm_rotate(model, (float) currentFrame * glm_rad(50.0f), modelAxis);
 
         mat4 view;
         cameraGetViewMatrix(camera, view);
@@ -348,15 +306,7 @@ int main()
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
         // --- /3D ---
 
-        //glActiveTexture(GL_TEXTURE0);
-        //glBindTexture(GL_TEXTURE_2D, texture);
-
-        //glActiveTexture(GL_TEXTURE1);
-        //glBindTexture(GL_TEXTURE_2D, awesomeTexture);
-
-        //shaderSetInt(shaderProgram, "ourTexture", 0);
-        //shaderSetInt(shaderProgram, "awesomeTexture", 1);
-
+        // DRAW THE FUCKING CUBE!
         glBindVertexArray(VAO);
 
         for (unsigned int i = 0; i < nCubePositions; i++)
@@ -364,20 +314,44 @@ int main()
             mat4 cubeModel;
             glm_mat4_identity(cubeModel);
             glm_translate(cubeModel, cubePositions[i]);
-            float angle = 20.0f * i;
-            vec3 cubeAxis = { 1.0f, 0.3f, 0.5f };
-            if (i % 3 == 0)
-            {
-                angle += glfwGetTime();
-            }
-            glm_rotate(cubeModel, angle, cubeAxis);
             int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) cubeModel);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        // Unbind our vertex array?
+        // --- Draw the light!!! ---
+        shaderUse(lightSourceShaderProgram);
+
+        //mat4 view;
+        cameraGetViewMatrix(camera, view);
+
+        //mat4 projection;
+        glm_mat4_identity(projection);
+        glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
+
+        // Send the matricies to the shaders
+        modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
+        viewLoc = glGetUniformLocation(shaderProgram->ID, "view");
+        projectionLoc = glGetUniformLocation(shaderProgram->ID, "projection");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float*) view);
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
+
+        glBindVertexArray(lightVAO);
+
+        mat4 lightCubeModel;
+        glm_mat4_identity(lightCubeModel);
+        glm_translate(lightCubeModel, lightPos);
+        vec3 lightCubeModelScale = { 0.2f, 0.2f, 0.2f };
+        glm_scale(lightCubeModel, lightCubeModelScale);
+        // TODO: Can't I replace this with something in my shader?
+        int lightSourceLoc = glGetUniformLocation(lightSourceShaderProgram->ID, "model");
+        glUniformMatrix4fv(lightSourceLoc, 1, GL_FALSE, (float*) lightCubeModel);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        // Unbind our vertex array
         glBindVertexArray(0);
 
         // Swap buffers!
