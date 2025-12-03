@@ -106,6 +106,8 @@ void processInput(GLFWwindow *window)
 int main()
 {
     printf("MATH-182: A custom game engine in C for learning and fun\nBy Willard Nilges\n");
+
+    // Set up glfw window stuff
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -236,10 +238,12 @@ int main()
     //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3 * sizeof(float)));
     //glEnableVertexAttribArray(1);
 
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(2);  
+    // no uhhhh texture information
+    //glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    //glEnableVertexAttribArray(1);  
 
     // --- Textures ---
+    /*
     stbi_set_flip_vertically_on_load(1);
     // container.jpg
     // Generate texture
@@ -294,6 +298,7 @@ int main()
         return -1;
     }
     stbi_image_free(awesomeData);
+    */
 
     // Enable Depth Buffer
     glEnable(GL_DEPTH_TEST);
@@ -301,16 +306,10 @@ int main()
     // Lots of cubes
     vec3 cubePositions[] = {
         { 0.0f,  0.0f,  0.0f}, 
-        { 2.0f,  5.0f, -15.0f}, 
-        {-1.5f, -2.2f, -2.5f},  
-        {-3.8f, -2.0f, -12.3f},  
-        { 2.4f, -0.4f, -3.5f},  
-        {-1.7f,  3.0f, -7.5f},  
-        { 1.3f, -2.0f, -2.5f},  
-        { 1.5f,  2.0f, -2.5f}, 
-        { 1.5f,  0.2f, -1.5f}, 
-        {-1.3f,  1.0f, -1.5f}
+        { 2.0f,  5.0f, -3.0f}, 
     };
+
+    size_t nCubePositions = sizeof(cubePositions)/sizeof(cubePositions[0]);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -349,18 +348,18 @@ int main()
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
         // --- /3D ---
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
+        //glActiveTexture(GL_TEXTURE0);
+        //glBindTexture(GL_TEXTURE_2D, texture);
 
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, awesomeTexture);
+        //glActiveTexture(GL_TEXTURE1);
+        //glBindTexture(GL_TEXTURE_2D, awesomeTexture);
 
-        shaderSetInt(shaderProgram, "ourTexture", 0);
-        shaderSetInt(shaderProgram, "awesomeTexture", 1);
+        //shaderSetInt(shaderProgram, "ourTexture", 0);
+        //shaderSetInt(shaderProgram, "awesomeTexture", 1);
 
         glBindVertexArray(VAO);
 
-        for (unsigned int i = 0; i < 10; i++)
+        for (unsigned int i = 0; i < nCubePositions; i++)
         {
             mat4 cubeModel;
             glm_mat4_identity(cubeModel);

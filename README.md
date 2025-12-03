@@ -1,7 +1,7 @@
 # MATH-182
 
 ```
-nix-shell
+nix develop
 cmake -B build
 cmake --build build
 ./build/triangle
