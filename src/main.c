@@ -281,6 +281,9 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        lightPos[2] = sin(currentFrame) * 5.0f;
+        lightPos[0] = cos(currentFrame) * 5.0f;
+
         // Render stuff!!!!
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
