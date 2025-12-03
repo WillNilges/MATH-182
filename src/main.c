@@ -176,48 +176,51 @@ int main()
     // Create a buffer and put some data in it. This is our cube "model"
     // with some texture data attached.
     float vertices[] = {
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+        // Positions          // Normals
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f, 
 
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
 
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
 
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
 
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
 
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-         0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
+
+
 
     // Create Vertex Array Objects and Vertex Buffer Objects
     unsigned int VAO, VBO;
@@ -237,8 +240,12 @@ int main()
         GL_STATIC_DRAW
     );
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // We need the normal data
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     // Need another VAO for the light
     unsigned int lightVAO;
@@ -246,7 +253,7 @@ int main()
     glBindVertexArray(lightVAO);
     // Bind the original buffer, because it already contains the data.
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     // Enable Depth Buffer
@@ -254,14 +261,14 @@ int main()
 
     // We need to define a point that the light emmenates from. This should
     // be the same as the position of the cube that represents the light.
-    vec3 lightPos = { 1.2f, 1.0f, 2.0f };
+    vec3 lightPos = { 1.2f, 3.0f, -3.5f };
     vec3 cubeLightPositions[] = {
         { lightPos[0], lightPos[1], lightPos[2] }
     };
 
     // And a cube to be hit by the light
     vec3 cubePositions[] = {
-        { 2.0f,  5.0f, -3.0f}, 
+        { 2.0f,  1.0f, -3.0f}, 
     };
 
     size_t nCubePositions = sizeof(cubePositions)/sizeof(cubePositions[0]);
@@ -285,10 +292,11 @@ int main()
         shaderUse(shaderProgram);
         shaderSetVec3(shaderProgram, "objectColor", 1.0f, 1.0f, 0.0f);
         shaderSetVec3(shaderProgram, "lightColor", lightColor[0], lightColor[1], lightColor[2]);
+        shaderSetVec3(shaderProgram, "lightPos", lightPos[0], lightPos[1], lightPos[2]);
 
-        // --- 3D!!! --- 
-        mat4 model;
-        glm_mat4_identity(model);
+        // --- 3D!!! ---
+        //mat4 model;
+        //glm_mat4_identity(model);
 
         mat4 view;
         cameraGetViewMatrix(camera, view);
@@ -301,7 +309,7 @@ int main()
         int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
         int viewLoc = glGetUniformLocation(shaderProgram->ID, "view");
         int projectionLoc = glGetUniformLocation(shaderProgram->ID, "projection");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float*) view);
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
         // --- /3D ---
@@ -334,7 +342,7 @@ int main()
         modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
         viewLoc = glGetUniformLocation(shaderProgram->ID, "view");
         projectionLoc = glGetUniformLocation(shaderProgram->ID, "projection");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float*) view);
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
 
