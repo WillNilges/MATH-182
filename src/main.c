@@ -290,10 +290,11 @@ int main()
 
         // COOL ASS FUCKING CUBE
         vec3 lightColor = { 1.0f, 1.0f, 1.0f };
+        vec3 objectColor = { 0.1f, 1.0f, 1.0f };
 
         // Shader for the cuuuuubes!
         shaderUse(shaderProgram);
-        shaderSetVec3(shaderProgram, "objectColor", 1.0f, 1.0f, 0.0f);
+        shaderSetVec3(shaderProgram, "objectColor", objectColor[0], objectColor[1], objectColor[2]);
         shaderSetVec3(shaderProgram, "lightColor", lightColor[0], lightColor[1], lightColor[2]);
         shaderSetVec3(shaderProgram, "lightPos", lightPos[0], lightPos[1], lightPos[2]);
         shaderSetVec3(shaderProgram, "viewPos", camera->pos[0], camera->pos[1], camera->pos[2]);
