@@ -261,7 +261,7 @@ int main()
 
     // We need to define a point that the light emmenates from. This should
     // be the same as the position of the cube that represents the light.
-    vec3 lightPos = { 1.2f, 3.0f, -7.5f };
+    vec3 lightPos = { 2.0f, 3.0f, -3.0f };
     vec3 cubeLightPositions[] = {
         { lightPos[0], lightPos[1], lightPos[2] }
     };
@@ -281,8 +281,8 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        lightPos[2] = sin(currentFrame) * 5.0f;
-        lightPos[0] = cos(currentFrame) * 5.0f;
+        lightPos[2] = -sin(currentFrame) * 5.0f;
+        lightPos[0] = sin(currentFrame) * 5.0f;
 
         // Render stuff!!!!
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -305,6 +305,7 @@ int main()
 
         mat4 view;
         cameraGetViewMatrix(camera, view);
+        shaderSetMat4v(shaderProgram, "view", view);
 
         mat4 projection;
         glm_mat4_identity(projection);

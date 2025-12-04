@@ -1,5 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
+#include "cglm/types.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,5 +22,5 @@ void shaderSetInt(Shader* shader, const char* name, int value);
 void shaderSetFloat(Shader* shader, const char* name, float value);
 void shaderSetVec3(Shader* shader, const char* name, float x, float y, float z);
 void shaderSetVec4(Shader* shader, const char* name, float x, float y, float z, float w);
-
+void shaderSetMat4v(Shader* shader, const char* name, mat4 mat);
 #endif

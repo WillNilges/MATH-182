@@ -111,7 +111,8 @@ unsigned int compileShaderProgram(char* vertexPath, char* fragmentPath) {
     return shaderProgram;
 }
 
-Shader* newShader(char* vertexPath, char* fragmentPath) {
+Shader* newShader(char* vertexPath, char* fragmentPath)
+{
     unsigned int shaderID = compileShaderProgram(vertexPath, fragmentPath);
     if (shaderID == 0) {
         printf("Shader compilation failed.\n");
@@ -150,4 +151,9 @@ void shaderSetVec3(Shader* shader, const char* name, float x, float y, float z)
 void shaderSetVec4(Shader* shader, const char* name, float x, float y, float z, float w)
 {
     glUniform4f(glGetUniformLocation(shader->ID, name), x, y, z, w);
+}
+
+void shaderSetMat4v(Shader* shader, const char* name, mat4 mat)
+{
+    glad_glUniformMatrix4fv(glGetUniformLocation(shader->ID, name), 1, GL_FALSE, (float*) mat);
 }
