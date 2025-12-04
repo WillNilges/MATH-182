@@ -281,8 +281,8 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        lightPos[2] = -sin(currentFrame) * 5.0f;
-        lightPos[0] = sin(currentFrame) * 5.0f;
+        lightPos[2] = sin(currentFrame) * 5.0f;
+        lightPos[0] = cos(currentFrame) * 5.0f;
 
         // Render stuff!!!!
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -312,12 +312,8 @@ int main()
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
         // Send the matricies to the shaders
-        int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
-        int viewLoc = glGetUniformLocation(shaderProgram->ID, "view");
-        int projectionLoc = glGetUniformLocation(shaderProgram->ID, "projection");
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float*) view);
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
+        shaderSetMat4v(shaderProgram, "view", view);
+        shaderSetMat4v(shaderProgram, "projection", projection);
         // --- /3D ---
 
         // DRAW THE FUCKING CUBE!
@@ -337,8 +333,7 @@ int main()
             }
             glm_rotate(cubeModel, angle, cubeAxis);
             */
-            int modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) cubeModel);
+            shaderSetMat4v(shaderProgram, "model", cubeModel);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
@@ -354,12 +349,8 @@ int main()
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
         // Send the matricies to the shaders
-        modelLoc = glGetUniformLocation(shaderProgram->ID, "model");
-        viewLoc = glGetUniformLocation(shaderProgram->ID, "view");
-        projectionLoc = glGetUniformLocation(shaderProgram->ID, "projection");
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, (float*) model);
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, (float*) view);
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, (float*) projection);
+        shaderSetMat4v(shaderProgram, "view", view);
+        shaderSetMat4v(shaderProgram, "projection", projection);
 
         glBindVertexArray(lightVAO);
 
@@ -369,8 +360,7 @@ int main()
         vec3 lightCubeModelScale = { 0.2f, 0.2f, 0.2f };
         glm_scale(lightCubeModel, lightCubeModelScale);
         // TODO: Can't I replace this with something in my shader?
-        int lightSourceLoc = glGetUniformLocation(lightSourceShaderProgram->ID, "model");
-        glUniformMatrix4fv(lightSourceLoc, 1, GL_FALSE, (float*) lightCubeModel);
+        shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
