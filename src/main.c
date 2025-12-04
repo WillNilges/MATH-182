@@ -152,8 +152,8 @@ int main()
     camera = newCameraWithDefaults();
 
     Shader* shaderProgram = newShader(
-        "shaders/shader.vert",
-        "shaders/shader.frag"
+        "shaders/gouraud/shader.vert",
+        "shaders/gouraud/shader.frag"
     );
 
     if (shaderProgram == NULL) {
