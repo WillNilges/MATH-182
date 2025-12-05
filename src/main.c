@@ -221,8 +221,6 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
     };
 
-
-
     // Create Vertex Array Objects and Vertex Buffer Objects
     unsigned int VAO, VBO;
     glGenVertexArrays(1, &VAO);
@@ -262,7 +260,7 @@ int main()
 
     // We need to define a point that the light emmenates from. This should
     // be the same as the position of the cube that represents the light.
-    vec3 lightPos = { 2.0f, 3.0f, -3.0f };
+    vec3 lightPos = { 3.0f, 4.0f, -3.0f };
     vec3 cubeLightPositions[] = {
         { lightPos[0], lightPos[1], lightPos[2] }
     };
@@ -283,8 +281,8 @@ int main()
         lastFrame = currentFrame;
 
         // Make the light circle the cube (kinda. It's not perfect.)
-        lightPos[2] = sin(currentFrame) * 5.0f;
-        lightPos[0] = cos(currentFrame) * 5.0f;
+        //lightPos[2] = sin(currentFrame) * 5.0f;
+        //lightPos[0] = cos(currentFrame) * 5.0f;
 
         // Render stuff!!!!
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -292,6 +290,12 @@ int main()
 
         // COOL ASS FUCKING CUBE
         vec3 lightColor = { 1.0f, 1.0f, 1.0f };
+        lightColor[0] = sin(currentFrame * 2.0f);
+        lightColor[1] = sin(currentFrame * 0.7f);
+        lightColor[2] = sin(currentFrame * 1.3f);
+        //0.0 	0.1 	0.06 	0.0 	0.50980392 	0.50980392 	0.50196078 	0.50196078 	0.50196078 	.25
+        vec3 diffuseColor = {lightColor[0] * 0.5f, lightColor[1] * 0.5f, lightColor[2] * 0.5f};
+        vec3 ambientColor = {diffuseColor[0] * 0.5f, diffuseColor[1] * 0.5f, diffuseColor[2] * 0.5f};
         vec3 objectColor = { 0.1f, 1.0f, 1.0f };
 
         // Shader for the cuuuuubes!
@@ -309,15 +313,15 @@ int main()
         // Send the lighting information to the shader.
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
-        shaderSetVec3(shaderProgram, "light.position", viewspaceLightPos[0], viewspaceLightPos[1], viewspaceLightPos[2]);
-        shaderSetVec3(shaderProgram, "light.ambient", 0.2f, 0.2f, 0.2f);
-        shaderSetVec3(shaderProgram, "light.diffuse", 0.5f, 0.5f, 0.5f);
-        shaderSetVec3(shaderProgram, "light.specular", 1.0f, 1.0f, 1.0f);
+        shaderSetVec3(shaderProgram, "light.position", viewspaceLightPos);
+        shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
+        shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
+        shaderSetVec3(shaderProgram, "light.specular", lightColor);
 
         // Describe a material
-        shaderSetVec3(shaderProgram, "material.ambient", 1.0f, 0.5f, 0.31f);
-        shaderSetVec3(shaderProgram, "material.diffuse", 1.0f, 0.5f, 0.31f);
-        shaderSetVec3(shaderProgram, "material.specular", 0.5f, 0.5f, 0.31f);
+        shaderSetVec3f(shaderProgram, "material.ambient", 1.0f, 0.5f, 0.31f);
+        shaderSetVec3f(shaderProgram, "material.diffuse", 1.0f, 0.5f, 0.31f);
+        shaderSetVec3f(shaderProgram, "material.specular", 0.5f, 0.5f, 0.31f);
         shaderSetFloat(shaderProgram, "material.shininess", 32.0f);
 
 
@@ -352,6 +356,7 @@ int main()
 
         // --- Draw the light!!! ---
         shaderUse(lightSourceShaderProgram);
+        shaderSetVec3(lightSourceShaderProgram, "lightColor", lightColor);
 
         //mat4 view;
         cameraGetViewMatrix(camera, view);

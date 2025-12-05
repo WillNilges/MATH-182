@@ -20,7 +20,8 @@ Shader* newShader(char* vertexPath, char* fragmentPath);
 void shaderUse(Shader* shader);
 void shaderSetInt(Shader* shader, const char* name, int value);
 void shaderSetFloat(Shader* shader, const char* name, float value);
-void shaderSetVec3(Shader* shader, const char* name, float x, float y, float z);
-void shaderSetVec4(Shader* shader, const char* name, float x, float y, float z, float w);
+void shaderSetVec3(Shader* shader, const char* name, vec3 vec);
+void shaderSetVec3f(Shader* shader, const char* name, float x, float y, float z);
+void shaderSetVec4(Shader* shader, const char* name, vec4 vec);
 void shaderSetMat4v(Shader* shader, const char* name, mat4 mat);
 #endif

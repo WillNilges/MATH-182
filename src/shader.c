@@ -143,14 +143,19 @@ void shaderSetFloat(Shader* shader, const char* name, float value)
     glUniform1f(glGetUniformLocation(shader->ID, name), value);
 }
 
-void shaderSetVec3(Shader* shader, const char* name, float x, float y, float z)
+void shaderSetVec3f(Shader* shader, const char* name, float x, float y, float z)
 {
     glUniform3f(glGetUniformLocation(shader->ID, name), x, y, z);
 }
 
-void shaderSetVec4(Shader* shader, const char* name, float x, float y, float z, float w)
+void shaderSetVec3(Shader* shader, const char* name, vec3 vec)
 {
-    glUniform4f(glGetUniformLocation(shader->ID, name), x, y, z, w);
+    glUniform3f(glGetUniformLocation(shader->ID, name), vec[0], vec[1], vec[2]);
+}
+
+void shaderSetVec4(Shader* shader, const char* name, vec4 vec)
+{
+    glUniform4f(glGetUniformLocation(shader->ID, name), vec[0], vec[1], vec[2], vec[3]);
 }
 
 void shaderSetMat4v(Shader* shader, const char* name, mat4 mat)
