@@ -6,6 +6,7 @@
 #include "cglm/affine.h"
 #include "cglm/cglm.h"
 #include "cglm/io.h"
+#include "cglm/mat4.h"
 #include "cglm/types.h"
 #include "stb_image.h"
 #include "shader.h"
@@ -281,6 +282,7 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
+        // Make the light circle the cube (kinda. It's not perfect.)
         lightPos[2] = sin(currentFrame) * 5.0f;
         lightPos[0] = cos(currentFrame) * 5.0f;
 
@@ -294,14 +296,6 @@ int main()
 
         // Shader for the cuuuuubes!
         shaderUse(shaderProgram);
-        shaderSetVec3(shaderProgram, "objectColor", objectColor[0], objectColor[1], objectColor[2]);
-        shaderSetVec3(shaderProgram, "lightColor", lightColor[0], lightColor[1], lightColor[2]);
-        shaderSetVec3(shaderProgram, "lightPos", lightPos[0], lightPos[1], lightPos[2]);
-        shaderSetVec3(shaderProgram, "viewPos", camera->pos[0], camera->pos[1], camera->pos[2]);
-
-        // --- 3D!!! ---
-        //mat4 model;
-        //glm_mat4_identity(model);
 
         mat4 view;
         cameraGetViewMatrix(camera, view);
@@ -310,6 +304,24 @@ int main()
         mat4 projection;
         glm_mat4_identity(projection);
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
+
+
+        // Send the lighting information to the shader.
+        vec3 viewspaceLightPos;
+        glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
+        shaderSetVec3(shaderProgram, "light.position", viewspaceLightPos[0], viewspaceLightPos[1], viewspaceLightPos[2]);
+        shaderSetVec3(shaderProgram, "light.ambient", 0.2f, 0.2f, 0.2f);
+        shaderSetVec3(shaderProgram, "light.diffuse", 0.5f, 0.5f, 0.5f);
+        shaderSetVec3(shaderProgram, "light.specular", 1.0f, 1.0f, 1.0f);
+
+        // Describe a material
+        shaderSetVec3(shaderProgram, "material.ambient", 1.0f, 0.5f, 0.31f);
+        shaderSetVec3(shaderProgram, "material.diffuse", 1.0f, 0.5f, 0.31f);
+        shaderSetVec3(shaderProgram, "material.specular", 0.5f, 0.5f, 0.31f);
+        shaderSetFloat(shaderProgram, "material.shininess", 32.0f);
+
+
+        // --- 3D!!! ---
 
         // Send the matricies to the shaders
         shaderSetMat4v(shaderProgram, "view", view);
@@ -359,7 +371,6 @@ int main()
         glm_translate(lightCubeModel, lightPos);
         vec3 lightCubeModelScale = { 0.2f, 0.2f, 0.2f };
         glm_scale(lightCubeModel, lightCubeModelScale);
-        // TODO: Can't I replace this with something in my shader?
         shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
