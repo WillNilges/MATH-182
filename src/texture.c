@@ -21,7 +21,6 @@ int loadTexture(char* path)
     unsigned char *data = stbi_load(path, &width, &height, &nrChannels, 0);
     if (data)
     {
-        
         GLenum format;
         if (nrChannels == 1)
             format = GL_RED;

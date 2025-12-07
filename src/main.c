@@ -280,12 +280,16 @@ int main()
     stbi_set_flip_vertically_on_load(1);
     int ambientCrate = loadTexture("textures/container2.png");
     int specularCrate = loadTexture("textures/container2_specular.png");
+    int emissionCrate = loadTexture("textures/matrix.jpg");
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, ambientCrate);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, specularCrate);
+
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, emissionCrate);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -328,19 +332,14 @@ int main()
         shaderSetVec3(shaderProgram, "light.specular", lightColor);
 
         // Describe a material
-        //shaderSetVec3f(shaderProgram, "material.ambient", 1.0f, 0.5f, 0.31f);
-        //shaderSetVec3f(shaderProgram, "material.diffuse", 1.0f, 0.5f, 0.31f);
-        shaderSetInt(shaderProgram, "material.diffuse", 0); // Texture :)
+        shaderSetInt(shaderProgram, "material.diffuse", 0);
         shaderSetInt(shaderProgram, "material.specular", 1);
+        shaderSetInt(shaderProgram, "material.emission", 2);
         shaderSetFloat(shaderProgram, "material.shininess", 0.25f * 128.0f);
-
-
-        // --- 3D!!! ---
 
         // Send the matricies to the shaders
         shaderSetMat4v(shaderProgram, "view", view);
         shaderSetMat4v(shaderProgram, "projection", projection);
-        // --- /3D ---
 
         // DRAW THE FUCKING CUBE!
         glBindVertexArray(VAO);
