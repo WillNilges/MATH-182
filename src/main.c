@@ -317,7 +317,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // COOL ASS FUCKING CUBE
-        vec3 lightColor = { 1.0f, 1.0f, 1.0f };
+        vec3 lightColor = { 1.0f, 1.0f, 0.0f };
         vec3 ambientColor = {0.2f, 0.2f, 0.2f};
         vec3 diffuseColor = {0.5f, 0.5f, 0.5f};
 
@@ -336,17 +336,19 @@ int main()
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
 
-        vec3 lightDir = { -0.2f, -1.0f, -0.3f };
-        shaderSetVec3(shaderProgram, "light.direction", lightDir);
+        shaderSetVec3(shaderProgram, "light.position", viewspaceLightPos);
         shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
         shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
         shaderSetVec3(shaderProgram, "light.specular", lightColor);
+        shaderSetFloat(shaderProgram, "light.constant", 1.0f);
+        shaderSetFloat(shaderProgram, "light.linear", 0.09f);
+        shaderSetFloat(shaderProgram, "light.quadratic", 0.032f);
 
         // Describe a material
         shaderSetInt(shaderProgram, "material.diffuse", 0);
         shaderSetInt(shaderProgram, "material.specular", 1);
         shaderSetInt(shaderProgram, "material.emission", 2);
-        shaderSetFloat(shaderProgram, "material.shininess", 0.25f * 128.0f);
+        shaderSetFloat(shaderProgram, "material.shininess", 0.5f * 128.0f);
 
         // Send the matricies to the shaders
         shaderSetMat4v(shaderProgram, "view", view);
