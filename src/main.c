@@ -271,6 +271,15 @@ int main()
     // And a cube to be hit by the light
     vec3 cubePositions[] = {
         { 2.0f,  1.0f, -3.0f}, 
+        { 2.0f,  5.0f, -15.0f}, 
+        {-1.5f, -2.2f, -2.5f},  
+        {-3.8f, -2.0f, -12.3f},  
+        { 2.4f, -0.4f, -3.5f},  
+        {-1.7f,  3.0f, -7.5f},  
+        { 1.3f, -2.0f, -2.5f},  
+        { 1.5f,  2.0f, -2.5f}, 
+        { 1.5f,  0.2f, -1.5f}, 
+        {-1.3f,  1.0f, -1.5f}
     };
 
     size_t nCubePositions = sizeof(cubePositions)/sizeof(cubePositions[0]);
@@ -326,7 +335,9 @@ int main()
         // Send the lighting information to the shader.
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
-        shaderSetVec3(shaderProgram, "light.position", viewspaceLightPos);
+
+        vec3 lightDir = { -0.2f, -1.0f, -0.3f };
+        shaderSetVec3(shaderProgram, "light.direction", lightDir);
         shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
         shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
         shaderSetVec3(shaderProgram, "light.specular", lightColor);
@@ -349,7 +360,6 @@ int main()
             mat4 cubeModel;
             glm_mat4_identity(cubeModel);
             glm_translate(cubeModel, cubePositions[i]);
-            /*
             float angle = 20.0f * i;
             vec3 cubeAxis = { 1.0f, 0.3f, 0.5f };
             if (i % 3 == 0)
@@ -357,7 +367,6 @@ int main()
                 angle += glfwGetTime();
             }
             glm_rotate(cubeModel, angle, cubeAxis);
-            */
             shaderSetMat4v(shaderProgram, "model", cubeModel);
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
