@@ -5,6 +5,7 @@
 #include <math.h>
 #include "cglm/affine.h"
 #include "cglm/cglm.h"
+#include "cglm/util.h"
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
@@ -336,7 +337,9 @@ int main()
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
 
-        shaderSetVec3(shaderProgram, "light.position", viewspaceLightPos);
+        shaderSetVec3(shaderProgram, "light.position", camera->pos);
+        shaderSetVec3(shaderProgram, "light.direction", camera->front);
+        shaderSetFloat(shaderProgram, "light.cutOff", (float)cos(glm_rad(12.5f)));
         shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
         shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
         shaderSetVec3(shaderProgram, "light.specular", lightColor);
