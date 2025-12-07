@@ -5,12 +5,10 @@
 #include <math.h>
 #include "cglm/affine.h"
 #include "cglm/cglm.h"
-#include "cglm/io.h"
-#include "cglm/mat4.h"
-#include "cglm/types.h"
-#include "stb_image.h"
 #include "shader.h"
 #include "camera.h"
+#include "texture.h"
+#include "stb_image.h"
 
 // Epic face opacity
 float visibility = 0.2f;
@@ -277,37 +275,17 @@ int main()
 
     size_t nCubePositions = sizeof(cubePositions)/sizeof(cubePositions[0]);
 
-    // --- Textures ---
+    // Flip images vertically since OpenGL's coordinates start at a different
+    // corner.
     stbi_set_flip_vertically_on_load(1);
-    // container2.png
-    // Generate texture
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // load and generate the texture
-    int width, height, nrChannels;
-    unsigned char *data = stbi_load("textures/container2.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        printf("Failed to load texture\n");
-        glfwTerminate();
-        return -1;
-    }
-    stbi_image_free(data);
+    int ambientCrate = loadTexture("textures/container2.png");
+    int specularCrate = loadTexture("textures/container2_specular.png");
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, ambientCrate);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specularCrate);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -341,7 +319,6 @@ int main()
         glm_mat4_identity(projection);
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
-
         // Send the lighting information to the shader.
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
@@ -354,7 +331,7 @@ int main()
         //shaderSetVec3f(shaderProgram, "material.ambient", 1.0f, 0.5f, 0.31f);
         //shaderSetVec3f(shaderProgram, "material.diffuse", 1.0f, 0.5f, 0.31f);
         shaderSetInt(shaderProgram, "material.diffuse", 0); // Texture :)
-        shaderSetVec3f(shaderProgram, "material.specular", 0.5f, 0.5f, 0.31f);
+        shaderSetInt(shaderProgram, "material.specular", 1);
         shaderSetFloat(shaderProgram, "material.shininess", 0.25f * 128.0f);
 
 
