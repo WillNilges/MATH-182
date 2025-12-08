@@ -5,6 +5,7 @@
 #include <math.h>
 #include "cglm/affine.h"
 #include "cglm/cglm.h"
+#include "cglm/mat4.h"
 #include "cglm/util.h"
 #include "shader.h"
 #include "camera.h"
@@ -318,7 +319,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // COOL ASS FUCKING CUBE
-        vec3 lightColor = { 1.0f, 1.0f, 0.0f };
+        vec3 lightColor = { 1.0f, 1.0f, 1.0f };
         vec3 ambientColor = {0.2f, 0.2f, 0.2f};
         vec3 diffuseColor = {0.5f, 0.5f, 0.5f};
 
@@ -336,10 +337,14 @@ int main()
         // Send the lighting information to the shader.
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
+        vec3 viewspaceCameraFront;
+        glm_mat4_mulv3(view, camera->front, 1.0, viewspaceCameraFront);
+
+        vec3 zero = { 0.0f, 0.0f, 0.0f };
 
         shaderSetVec3(shaderProgram, "light.position", camera->pos);
         shaderSetVec3(shaderProgram, "light.direction", camera->front);
-        shaderSetFloat(shaderProgram, "light.cutOff", (float)cos(glm_rad(12.5f)));
+        shaderSetFloat(shaderProgram, "light.cutOff", cos(glm_rad(12.5f)));
         shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
         shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
         shaderSetVec3(shaderProgram, "light.specular", lightColor);
@@ -378,6 +383,7 @@ int main()
         }
 
         // --- Draw the light!!! ---
+        /*
         shaderUse(lightSourceShaderProgram);
         shaderSetVec3(lightSourceShaderProgram, "lightColor", lightColor);
 
@@ -402,6 +408,7 @@ int main()
         shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
+        */
 
         // Unbind our vertex array
         glBindVertexArray(0);
