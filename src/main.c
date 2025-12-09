@@ -341,9 +341,10 @@ int main()
         glm_mat4_mulv3(view, camera->front, 1.0, viewspaceCameraFront);
 
         vec3 zero = { 0.0f, 0.0f, 0.0f };
+        vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
 
-        shaderSetVec3(shaderProgram, "light.position", camera->pos);
-        shaderSetVec3(shaderProgram, "light.direction", camera->front);
+        shaderSetVec3(shaderProgram, "light.position", zero);
+        shaderSetVec3(shaderProgram, "light.direction", zeroOne);
         shaderSetFloat(shaderProgram, "light.cutOff", cos(glm_rad(12.5f)));
         shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
         shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
