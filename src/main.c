@@ -346,6 +346,7 @@ int main()
         shaderSetVec3(shaderProgram, "light.position", zero);
         shaderSetVec3(shaderProgram, "light.direction", zeroOne);
         shaderSetFloat(shaderProgram, "light.cutOff", cos(glm_rad(12.5f)));
+        shaderSetFloat(shaderProgram, "light.outerCutOff", cos(glm_rad(20.5f)));
         shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
         shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
         shaderSetVec3(shaderProgram, "light.specular", lightColor);
