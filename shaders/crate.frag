@@ -40,6 +40,7 @@ void main()
     {
         // do lighting calculations
 
+        // Spotlight
         float theta = dot(lightDir, normalize(-light.direction));
         float epsilon = light.cutOff - light.outerCutOff;
         float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
@@ -60,13 +61,17 @@ void main()
         vec3 s = vec3(texture(material.specular, TexCoords));
         vec3 specular = light.specular * spec * s;
 
+        diffuse *= intensity;
+        specular *= intensity;
+
+        // Calculate attenuation
         float distance = length(light.position - FragPos);
         float attenuation = 1.0 / (light.constant + light.linear * distance *
                         light.quadratic * (distance * distance));
 
-        ambient *= attenuation;
-        diffuse *= attenuation * intensity;
-        specular *= attenuation * intensity;
+        //ambient *= attenuation;
+        diffuse *= attenuation;
+        specular *= attenuation;
 
         vec3 result = ambient + diffuse + specular;
         FragColor = vec4(result, 1.0);
