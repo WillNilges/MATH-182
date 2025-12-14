@@ -153,8 +153,8 @@ int main()
     camera = newCameraWithDefaults();
 
     Shader* shaderProgram = newShader(
-        "shaders/crate.vert",
-        "shaders/crate.frag"
+        "shaders/multiLightCrate/multiLightCrate.vert",
+        "shaders/multiLightCrate/multiLightCrate.frag"
     );
 
     if (shaderProgram == NULL) {
@@ -251,7 +251,7 @@ int main()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    // Need another VAO for the light
+    // Need another VAO for the light cube
     unsigned int lightVAO;
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
@@ -343,16 +343,33 @@ int main()
         vec3 zero = { 0.0f, 0.0f, 0.0f };
         vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
 
-        shaderSetVec3(shaderProgram, "light.position", zero);
-        shaderSetVec3(shaderProgram, "light.direction", zeroOne);
-        shaderSetFloat(shaderProgram, "light.cutOff", cos(glm_rad(12.5f)));
-        shaderSetFloat(shaderProgram, "light.outerCutOff", cos(glm_rad(20.5f)));
-        shaderSetVec3(shaderProgram, "light.ambient", ambientColor);
-        shaderSetVec3(shaderProgram, "light.diffuse", diffuseColor);
-        shaderSetVec3(shaderProgram, "light.specular", lightColor);
-        shaderSetFloat(shaderProgram, "light.constant", 1.0f);
-        shaderSetFloat(shaderProgram, "light.linear", 0.09f);
-        shaderSetFloat(shaderProgram, "light.quadratic", 0.032f);
+        // Set up the directional light
+        vec3 lightDir = { -0.2f, -1.0f, -0.3f };
+        shaderSetVec3(shaderProgram, "dirLight.direction", lightDir);
+        shaderSetVec3(shaderProgram, "dirLight.ambient", ambientColor);
+        shaderSetVec3(shaderProgram, "dirLight.diffuse", diffuseColor);
+        shaderSetVec3(shaderProgram, "dirLight.specular", lightColor);
+
+        // Add some point lights
+        shaderSetVec3(shaderProgram, "pointLights[0].position", lightPos);
+        shaderSetFloat(shaderProgram, "pointLights[0].constant", 1.0f);
+        shaderSetFloat(shaderProgram, "pointLights[0].linear", 0.09f);
+        shaderSetFloat(shaderProgram, "pointLights[0].quadratic", 0.032f);
+        shaderSetVec3(shaderProgram,  "pointLights[0].ambient", ambientColor);
+        shaderSetVec3(shaderProgram,  "pointLights[0].diffuse", diffuseColor);
+        shaderSetVec3(shaderProgram,  "pointLights[0].specular", lightColor);
+
+        // Add the flashlight info to the shader
+        shaderSetVec3(shaderProgram,  "spotLights[0].position", zero);
+        shaderSetVec3(shaderProgram,  "spotLights[0].direction", zeroOne);
+        shaderSetFloat(shaderProgram, "spotLights[0].cutOff", cos(glm_rad(12.5f)));
+        shaderSetFloat(shaderProgram, "spotLights[0].outerCutOff", cos(glm_rad(20.5f)));
+        shaderSetVec3(shaderProgram,  "spotLights[0].ambient", ambientColor);
+        shaderSetVec3(shaderProgram,  "spotLights[0].diffuse", diffuseColor);
+        shaderSetVec3(shaderProgram,  "spotLights[0].specular", lightColor);
+        shaderSetFloat(shaderProgram, "spotLights[0].constant", 1.0f);
+        shaderSetFloat(shaderProgram, "spotLights[0].linear", 0.09f);
+        shaderSetFloat(shaderProgram, "spotLights[0].quadratic", 0.032f);
 
         // Describe a material
         shaderSetInt(shaderProgram, "material.diffuse", 0);
@@ -385,7 +402,6 @@ int main()
         }
 
         // --- Draw the light!!! ---
-        /*
         shaderUse(lightSourceShaderProgram);
         shaderSetVec3(lightSourceShaderProgram, "lightColor", lightColor);
 
@@ -410,7 +426,6 @@ int main()
         shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);
 
         glDrawArrays(GL_TRIANGLES, 0, 36);
-        */
 
         // Unbind our vertex array
         glBindVertexArray(0);

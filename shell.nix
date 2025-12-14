@@ -14,6 +14,7 @@ pkgs.mkShell
     gcc
     gdb
     glibc
+    python312
   ];
 
 }
