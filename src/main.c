@@ -286,6 +286,26 @@ int main()
             { 0.5f, 0.0f, 0.5f },
         },
     };
+    size_t nCubeLights = sizeof(cubeLights)/sizeof(cubeLights[0]);
+
+    SpotLight spotLights[] = {
+        {
+            { 0.0f, 0.0f, 0.0f }, 
+            { 0.0f, 0.0f, -1.0f }, 
+
+            cos(glm_rad(12.5f)),
+            cos(glm_rad(20.5f)),
+
+            { 0.1f, 0.1f, 0.1f },
+            { 0.5f, 0.5f, 0.5f },
+            { 1.0f, 1.0f, 1.0f },
+
+            1.0f,
+            0.09f,
+            0.032f,
+        },
+    };
+    size_t nSpotLights = sizeof(spotLights)/sizeof(spotLights[0]);
 
     /*
     vec3 lightPos[] = {
@@ -297,7 +317,6 @@ int main()
         { lightPos[1][0], lightPos[1][1], lightPos[1][2] },
     };*/
 
-    size_t nCubeLights = sizeof(cubeLights)/sizeof(cubeLights[0]);
 
     // And a cube to be hit by the light
     vec3 cubePositions[] = {
@@ -348,9 +367,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // COOL ASS FUCKING CUBE
-        vec3 lightColor = { 1.0f, 1.0f, 1.0f };
-        vec3 ambientColor = {0.1f, 0.1f, 0.1f};
-        vec3 diffuseColor = {0.5f, 0.5f, 0.5f};
+        vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
+        vec3 ambientColor = { 0.1f, 0.1f, 0.1f };
+        vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
 
         // Shader for the cuuuuubes!
         shaderUse(shaderProgram);
@@ -395,16 +414,18 @@ int main()
         }
 
         // Add the flashlight info to the shader
-        shaderSetVec3(shaderProgram,  "spotLights[0].position", zero);
-        shaderSetVec3(shaderProgram,  "spotLights[0].direction", zeroOne);
-        shaderSetFloat(shaderProgram, "spotLights[0].cutOff", cos(glm_rad(12.5f)));
-        shaderSetFloat(shaderProgram, "spotLights[0].outerCutOff", cos(glm_rad(20.5f)));
-        shaderSetVec3(shaderProgram,  "spotLights[0].ambient", ambientColor);
-        shaderSetVec3(shaderProgram,  "spotLights[0].diffuse", diffuseColor);
-        shaderSetVec3(shaderProgram,  "spotLights[0].specular", lightColor);
-        shaderSetFloat(shaderProgram, "spotLights[0].constant", 1.0f);
-        shaderSetFloat(shaderProgram, "spotLights[0].linear", 0.09f);
-        shaderSetFloat(shaderProgram, "spotLights[0].quadratic", 0.032f);
+        for (unsigned int i = 0; i < nSpotLights; i++) {
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "position"), spotLights[i].position);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "direction"), spotLights[i].direction);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "cutOff"), spotLights[i].cutOff);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "outerCutOff"), spotLights[i].outerCutOff);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "ambient"), spotLights[i].ambient);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "diffuse"), spotLights[i].diffuse);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "specular"), spotLights[i].specular);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "constant"), spotLights[i].constant);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "linear"), spotLights[i].linear);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "quadratic"), spotLights[i].quadratic);
+        }
 
         // Describe a material
         shaderSetInt(shaderProgram, "material.diffuse", 0);
