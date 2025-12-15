@@ -7,6 +7,7 @@
 #include "cglm/cglm.h"
 #include "cglm/mat4.h"
 #include "cglm/util.h"
+#include "light.h"
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
@@ -265,6 +266,28 @@ int main()
 
     // We need to define a point that the light emmenates from. This should
     // be the same as the position of the cube that represents the light.
+    PointLight cubeLights[] = {
+        {
+            { 3.0f, 4.0f, -3.0f },
+            1.0f,
+            0.09f,
+            0.032f,
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 0.1f, 0.0f },
+            { 0.0f, 0.5f, 0.0f },
+        },
+        {
+            { -10.0f, 4.0f, -10.0f },
+            1.0f,
+            0.09f,
+            0.032f,
+            { 1.0f, 0.0f, 1.0f },
+            { 0.1f, 0.0f, 0.1f },
+            { 0.5f, 0.0f, 0.5f },
+        },
+    };
+
+    /*
     vec3 lightPos[] = {
         { 3.0f, 4.0f, -3.0f },
         { 6.0f, 4.0f, -3.0f },
@@ -272,9 +295,9 @@ int main()
     vec3 cubeLightPositions[] = {
         { lightPos[0][0], lightPos[0][1], lightPos[0][2] },
         { lightPos[1][0], lightPos[1][1], lightPos[1][2] },
-    };
+    };*/
 
-    size_t nCubeLightPositions = sizeof(cubeLightPositions)/sizeof(cubeLightPositions[0]);
+    size_t nCubeLights = sizeof(cubeLights)/sizeof(cubeLights[0]);
 
     // And a cube to be hit by the light
     vec3 cubePositions[] = {
@@ -357,14 +380,14 @@ int main()
         shaderSetVec3(shaderProgram, "dirLight.specular", lightColor);
 
         // Add some point lights
-        for (unsigned int i = 0; i < nCubeLightPositions; i++) {
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "position"),  cubeLightPositions[i]);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "constant"),  1.0f);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "linear"),    0.09f);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "quadratic"), 0.032f);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "ambient"),   ambientColor);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "diffuse"),   diffuseColor);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "specular"),  lightColor);
+        for (unsigned int i = 0; i < nCubeLights; i++) {
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "position"),  cubeLights[i].position);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "constant"),  cubeLights[i].constant);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "linear"),    cubeLights[i].linear);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "quadratic"), cubeLights[i].quadratic);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "ambient"),   cubeLights[i].ambient);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "diffuse"),   cubeLights[i].diffuse);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "specular"),  cubeLights[i].specular);
 
         }
 
@@ -412,7 +435,6 @@ int main()
 
         // --- Draw the light!!! ---
         shaderUse(lightSourceShaderProgram);
-        shaderSetVec3(lightSourceShaderProgram, "lightColor", lightColor);
 
         //mat4 view;
         cameraGetViewMatrix(camera, view);
@@ -427,10 +449,11 @@ int main()
 
         glBindVertexArray(lightVAO);
 
-        for (unsigned int i = 0; i < nCubeLightPositions; i++) {
+        for (unsigned int i = 0; i < nCubeLights; i++) {
+            shaderSetVec3(lightSourceShaderProgram, "lightColor", cubeLights[i].specular);
             mat4 lightCubeModel;
             glm_mat4_identity(lightCubeModel);
-            glm_translate(lightCubeModel, lightPos[i]);
+            glm_translate(lightCubeModel, cubeLights[i].position);
             vec3 lightCubeModelScale = { 0.2f, 0.2f, 0.2f };
             glm_scale(lightCubeModel, lightCubeModelScale);
             shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);

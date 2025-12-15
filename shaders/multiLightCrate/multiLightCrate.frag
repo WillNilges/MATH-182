@@ -181,10 +181,10 @@ void main()
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     }
 
-    for (int i = 0; i < NR_SPOT_LIGHTS; i++)
-    {
-        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
-    }
+    //for (int i = 0; i < NR_SPOT_LIGHTS; i++)
+    //{
+    //    result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
+    //}
 
     FragColor = vec4(result, 1.0);
 }
