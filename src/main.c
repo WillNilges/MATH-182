@@ -341,10 +341,10 @@ int main()
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
         // Send the lighting information to the shader.
-        vec3 viewspaceLightPos;
-        glm_mat4_mulv3(view, lightPos, 1.0, viewspaceLightPos);
-        vec3 viewspaceCameraFront;
-        glm_mat4_mulv3(view, camera->front, 1.0, viewspaceCameraFront);
+        //vec3 viewspaceLightPos;
+        //glm_mat4_mulv3(view, lightPos[0], 1.0, viewspaceLightPos);
+        //vec3 viewspaceCameraFront;
+        //glm_mat4_mulv3(view, camera->front, 1.0, viewspaceCameraFront);
 
         vec3 zero = { 0.0f, 0.0f, 0.0f };
         vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
@@ -358,29 +358,13 @@ int main()
 
         // Add some point lights
         for (unsigned int i = 0; i < nCubeLightPositions; i++) {
-
-            char indexStr[3]; // Enough for 0 - 99
-            snprintf(index, sizeof(index), "%u", i);
-
-            char position[50], constant[50], linear[50], quadratic[50],
-            ambient[50], diffuse[50], specular[50];
-
-
-            snprintf(position, sizeof(position), "pointLights[0].position",  indexStr);
-            snprintf(constant, sizeof(constant), "pointLights[0].constant",  indexStr);
-            snprintf(linear, sizeof(linear), "pointLights[0].linear",    indexStr);
-            snprintf(quadratic, sizeof(quadratic), "pointLights[0].quadratic", indexStr);
-            snprintf(ambient, sizeof(ambient), "pointLights[0].ambient",   indexStr);
-            snprintf(diffuse, sizeof(diffuse), "pointLights[0].diffuse",   indexStr);
-            snprintf(specular, sizeof(specular), "pointLights[0].specular",  indexStr);
-
-            shaderSetVec3(shaderProgram,  "pointLights[0].position",  cubeLightPositions[i]);
-            shaderSetFloat(shaderProgram, "pointLights[0].constant",  1.0f);
-            shaderSetFloat(shaderProgram, "pointLights[0].linear",    0.09f);
-            shaderSetFloat(shaderProgram, "pointLights[0].quadratic", 0.032f);
-            shaderSetVec3(shaderProgram,  "pointLights[0].ambient",   ambientColor);
-            shaderSetVec3(shaderProgram,  "pointLights[0].diffuse",   diffuseColor);
-            shaderSetVec3(shaderProgram,  "pointLights[0].specular",  lightColor);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "position"),  cubeLightPositions[i]);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "constant"),  1.0f);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "linear"),    0.09f);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "quadratic"), 0.032f);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "ambient"),   ambientColor);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "diffuse"),   diffuseColor);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "specular"),  lightColor);
 
         }
 
@@ -443,14 +427,16 @@ int main()
 
         glBindVertexArray(lightVAO);
 
-        mat4 lightCubeModel;
-        glm_mat4_identity(lightCubeModel);
-        glm_translate(lightCubeModel, lightPos);
-        vec3 lightCubeModelScale = { 0.2f, 0.2f, 0.2f };
-        glm_scale(lightCubeModel, lightCubeModelScale);
-        shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);
+        for (unsigned int i = 0; i < nCubeLightPositions; i++) {
+            mat4 lightCubeModel;
+            glm_mat4_identity(lightCubeModel);
+            glm_translate(lightCubeModel, lightPos[i]);
+            vec3 lightCubeModelScale = { 0.2f, 0.2f, 0.2f };
+            glm_scale(lightCubeModel, lightCubeModelScale);
+            shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
 
         // Unbind our vertex array
         glBindVertexArray(0);
