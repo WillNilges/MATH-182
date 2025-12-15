@@ -381,7 +381,10 @@ int main()
 
         // Add some point lights
         for (unsigned int i = 0; i < nCubeLights; i++) {
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "position"),  cubeLights[i].position);
+
+            vec3 viewspaceLightPos;
+            glm_mat4_mulv3(view, cubeLights[i].position, 1.0, viewspaceLightPos);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "position"),  viewspaceLightPos);
             shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "constant"),  cubeLights[i].constant);
             shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "linear"),    cubeLights[i].linear);
             shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "quadratic"), cubeLights[i].quadratic);
