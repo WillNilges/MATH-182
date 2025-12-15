@@ -1,4 +1,14 @@
 #include "shader.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#include <glad/glad.h>
+
+
+
+
 // Open and read the content of your shader files. Returns a char* containing
 // the data from the shader.
 // https://moderncprogramming.com/loading-a-glsl-shader-from-file-in-opengl-using-pure-c/
@@ -161,4 +171,15 @@ void shaderSetVec4(Shader* shader, const char* name, vec4 vec)
 void shaderSetMat4v(Shader* shader, const char* name, mat4 mat)
 {
     glad_glUniformMatrix4fv(glGetUniformLocation(shader->ID, name), 1, GL_FALSE, (float*) mat);
+}
+
+char* shaderGetUniformName(char* name, unsigned int index, char* property)
+{
+    // Incredibly cursed
+    // https://stackoverflow.com/questions/8257714/how-can-i-convert-an-int-to-a-string-in-c
+    char indexStr[(int)((ceil(log10(index))+1)*sizeof(char))];
+    char* uniformName = malloc(sizeof(*name) + sizeof(indexStr) + sizeof(*property));
+
+    snprintf(uniformName, sizeof(uniformName), "%s[%s].%s", name, indexStr, property);
+    return uniformName;
 }

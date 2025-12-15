@@ -4,9 +4,14 @@ pkgs.mkShell
 {
   name = "openGL";
 
+  buildInputs = [
+    pkgs.clang-tools
+    pkgs.clang
+  ];
+
   nativeBuildInputs = with pkgs; [
-    # clang
-    # clang-tools
+    #clang-tools
+    #clang
     cmake
     glfw
     lua

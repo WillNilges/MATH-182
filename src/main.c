@@ -265,10 +265,16 @@ int main()
 
     // We need to define a point that the light emmenates from. This should
     // be the same as the position of the cube that represents the light.
-    vec3 lightPos = { 3.0f, 4.0f, -3.0f };
-    vec3 cubeLightPositions[] = {
-        { lightPos[0], lightPos[1], lightPos[2] }
+    vec3 lightPos[] = {
+        { 3.0f, 4.0f, -3.0f },
+        { -3.0f, 4.0f, 3.0f },
     };
+    vec3 cubeLightPositions[] = {
+        { lightPos[0][0], lightPos[0][1], lightPos[0][2] },
+        { lightPos[1][0], lightPos[1][1], lightPos[1][2] },
+    };
+
+    size_t nCubeLightPositions = sizeof(cubeLightPositions)/sizeof(cubeLightPositions[0]);
 
     // And a cube to be hit by the light
     vec3 cubePositions[] = {
@@ -281,7 +287,7 @@ int main()
         { 1.3f, -2.0f, -2.5f},  
         { 1.5f,  2.0f, -2.5f}, 
         { 1.5f,  0.2f, -1.5f}, 
-        {-1.3f,  1.0f, -1.5f}
+        {-1.3f,  1.0f, -1.5f},
     };
 
     size_t nCubePositions = sizeof(cubePositions)/sizeof(cubePositions[0]);
@@ -320,7 +326,7 @@ int main()
 
         // COOL ASS FUCKING CUBE
         vec3 lightColor = { 1.0f, 1.0f, 1.0f };
-        vec3 ambientColor = {0.2f, 0.2f, 0.2f};
+        vec3 ambientColor = {0.1f, 0.1f, 0.1f};
         vec3 diffuseColor = {0.5f, 0.5f, 0.5f};
 
         // Shader for the cuuuuubes!
@@ -351,13 +357,32 @@ int main()
         shaderSetVec3(shaderProgram, "dirLight.specular", lightColor);
 
         // Add some point lights
-        shaderSetVec3(shaderProgram, "pointLights[0].position", lightPos);
-        shaderSetFloat(shaderProgram, "pointLights[0].constant", 1.0f);
-        shaderSetFloat(shaderProgram, "pointLights[0].linear", 0.09f);
-        shaderSetFloat(shaderProgram, "pointLights[0].quadratic", 0.032f);
-        shaderSetVec3(shaderProgram,  "pointLights[0].ambient", ambientColor);
-        shaderSetVec3(shaderProgram,  "pointLights[0].diffuse", diffuseColor);
-        shaderSetVec3(shaderProgram,  "pointLights[0].specular", lightColor);
+        for (unsigned int i = 0; i < nCubeLightPositions; i++) {
+
+            char indexStr[3]; // Enough for 0 - 99
+            snprintf(index, sizeof(index), "%u", i);
+
+            char position[50], constant[50], linear[50], quadratic[50],
+            ambient[50], diffuse[50], specular[50];
+
+
+            snprintf(position, sizeof(position), "pointLights[0].position",  indexStr);
+            snprintf(constant, sizeof(constant), "pointLights[0].constant",  indexStr);
+            snprintf(linear, sizeof(linear), "pointLights[0].linear",    indexStr);
+            snprintf(quadratic, sizeof(quadratic), "pointLights[0].quadratic", indexStr);
+            snprintf(ambient, sizeof(ambient), "pointLights[0].ambient",   indexStr);
+            snprintf(diffuse, sizeof(diffuse), "pointLights[0].diffuse",   indexStr);
+            snprintf(specular, sizeof(specular), "pointLights[0].specular",  indexStr);
+
+            shaderSetVec3(shaderProgram,  "pointLights[0].position",  cubeLightPositions[i]);
+            shaderSetFloat(shaderProgram, "pointLights[0].constant",  1.0f);
+            shaderSetFloat(shaderProgram, "pointLights[0].linear",    0.09f);
+            shaderSetFloat(shaderProgram, "pointLights[0].quadratic", 0.032f);
+            shaderSetVec3(shaderProgram,  "pointLights[0].ambient",   ambientColor);
+            shaderSetVec3(shaderProgram,  "pointLights[0].diffuse",   diffuseColor);
+            shaderSetVec3(shaderProgram,  "pointLights[0].specular",  lightColor);
+
+        }
 
         // Add the flashlight info to the shader
         shaderSetVec3(shaderProgram,  "spotLights[0].position", zero);

@@ -48,7 +48,7 @@ in vec2 TexCoords;
 
 uniform DirLight dirLight;
 
-#define NR_POINT_LIGHTS 1
+#define NR_POINT_LIGHTS 2
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
 #define NR_SPOT_LIGHTS 1
@@ -170,8 +170,10 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
+    vec3 result = vec3(0.0);
+
     // phase 1: Directional lighting
-    vec3 result = CalcDirLight(dirLight, norm, viewDir);
+    //result += CalcDirLight(dirLight, norm, viewDir);
 
     // phase 2: Point lights
     for (int i = 0; i < NR_POINT_LIGHTS; i++)

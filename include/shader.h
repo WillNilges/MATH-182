@@ -1,11 +1,6 @@
 #ifndef SHADER_H
 #define SHADER_H
 #include "cglm/types.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include <glad/glad.h>
 
 typedef struct {
     unsigned int ID;
@@ -24,4 +19,6 @@ void shaderSetVec3(Shader* shader, const char* name, vec3 vec);
 void shaderSetVec3f(Shader* shader, const char* name, float x, float y, float z);
 void shaderSetVec4(Shader* shader, const char* name, vec4 vec);
 void shaderSetMat4v(Shader* shader, const char* name, mat4 mat);
+
+char* shaderGetUniformName(char* name, unsigned int index, char* property);
 #endif
