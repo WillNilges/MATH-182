@@ -175,7 +175,14 @@ void shaderSetMat4v(Shader* shader, const char* name, mat4 mat)
 
 char* shaderGetUniformName(char* name, unsigned int index, char* property)
 {
-    char* uniformName = malloc(1024 * sizeof(char));
-    snprintf(uniformName, 1023, "%s[%u].%s", name, index, property);
+    size_t lenName = strlen(name);
+    size_t lenProperty = strlen(property);
+    size_t lenIndex = snprintf(NULL, 0, "%u", index);
+    size_t lenExtra = 4; // Extra for '[].\0'
+
+    size_t lenUniformName = lenName + lenProperty + lenIndex + lenExtra;
+
+    char* uniformName = (char*)malloc(lenUniformName * sizeof(char));
+    snprintf(uniformName, lenUniformName, "%s[%u].%s", name, index, property);
     return uniformName;
 }
