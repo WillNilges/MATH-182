@@ -175,11 +175,7 @@ void shaderSetMat4v(Shader* shader, const char* name, mat4 mat)
 
 char* shaderGetUniformName(char* name, unsigned int index, char* property)
 {
-    // Incredibly cursed
-    // https://stackoverflow.com/questions/8257714/how-can-i-convert-an-int-to-a-string-in-c
-    char indexStr[(int)((ceil(log10(index))+1)*sizeof(char))];
-    char* uniformName = malloc(sizeof(*name) + sizeof(indexStr) + sizeof(*property));
-
-    snprintf(uniformName, sizeof(uniformName), "%s[%s].%s", name, indexStr, property);
+    char* uniformName = malloc(1024 * sizeof(char));
+    snprintf(uniformName, 1023, "%s[%u].%s", name, index, property);
     return uniformName;
 }

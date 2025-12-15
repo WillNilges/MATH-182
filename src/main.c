@@ -267,7 +267,7 @@ int main()
     // be the same as the position of the cube that represents the light.
     vec3 lightPos[] = {
         { 3.0f, 4.0f, -3.0f },
-        { -3.0f, 4.0f, 3.0f },
+        { 6.0f, 4.0f, -3.0f },
     };
     vec3 cubeLightPositions[] = {
         { lightPos[0][0], lightPos[0][1], lightPos[0][2] },
