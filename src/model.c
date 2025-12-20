@@ -1,95 +1,133 @@
 #include "model.h"
-#include "shader.h"
-#include <stddef.h>
+#include "assimp/cimport.h"
+#include "assimp/material.h"
+#include "assimp/postprocess.h"
+#include "assimp/scene.h"
+#include "cglm/types.h"
+#include "mesh.h"
 #include <stdio.h>
-#include <stdlib.h>
-#include <glad/glad.h>
-#include <string.h>
 
-Mesh* NewMesh(Vertex* vertices, unsigned int* indices, Texture* textures)
+void modelLoadModel(Model* model, char* path)
 {
-    Mesh* mesh = malloc(sizeof(Mesh));
-    mesh->vertices = vertices;
-    mesh->indices = indices;
-    mesh->textures = textures;
-
-    return mesh;
-}
-
-void meshDraw(Mesh* mesh, Shader* shader)
-{
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-    for (unsigned int i = 0; i < sizeof(mesh->textures)/sizeof(mesh->textures[0]); i++)
+    const struct aiScene* scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+    if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
     {
-        glActiveTexture(GL_TEXTURE0 + i); // Activate texture unit
-        // retrieve texture number (N in diffuse_textureN)
-        char* number;
-        char* type = mesh->textures[i].type;
-        if (strcmp(type, MODEL_TEXTURE_DIFFUSE) == 0)
-        {
-            size_t lenType = strlen(type);
-            size_t lenNumber = snprintf(NULL, 0, "%u", diffuseNr);
-            char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
-            snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
-            shaderSetFloat(shader, shaderVarName, i);
-            diffuseNr++;
-        }
-        else if (strcmp(type, MODEL_TEXTURE_SPECULAR) == 0)
-        {
-            size_t lenType = strlen(type);
-            size_t lenNumber = snprintf(NULL, 0, "%u", specularNr);
-            char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
-            snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
-            shaderSetFloat(shader, shaderVarName, i);
-            specularNr++;
-        }
-        glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
+        printf("ERROR::ASSIMP::%s\n", aiGetErrorString());
+        return;
     }
-    glActiveTexture(GL_TEXTURE0);
-
-    // Draw mesh
-    glBindVertexArray(mesh->VAO);
-    // Pointer arithmatic to get the length of the indices. XXX: This might not work.
-    glDrawElements(GL_TRIANGLES, *(&mesh->indices + 1) - mesh->indices, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    model->directory = path;
+    modelProcessNode(model, scene->mRootNode, scene);
 }
 
-void modelSetupMesh(Mesh* mesh)
+void modelDraw(Model* model, Shader* shader)
 {
-    glGenVertexArrays(1, &mesh->VAO);
-    glGenBuffers(1, &mesh->VBO);
-    glGenBuffers(1, &mesh->EBO);
+    for (unsigned int i = 0; i < model->numMeshes; i++)
+    {
+        meshDraw(&model->meshes[i], shader);
+    }
+}
 
-    glBindVertexArray(mesh->VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+void modelProcessNode(Model* model, struct aiNode* node, const struct aiScene* scene)
+{
+    // Process node's meshes (if any exist)
 
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(*mesh->vertices),
-        &mesh->vertices[0],
-        GL_STATIC_DRAW
-    );
+    // TODO: Allocate longer mesh array
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(*mesh->indices),
-        &mesh->indices[0],
-        GL_STATIC_DRAW
-    );
 
-    // vertex positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    for(unsigned int i = 0; i < node->mNumMeshes; i++)
+    {
+        struct aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
+        model->meshes.push_back(modelProcessMesh(model, mesh, scene));
+    }
 
-    // vertex normals
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+    // Then process meshes for any children
+    for(unsigned int i = 0; i < node->mNumChildren; i++)
+    {
+        modelProcessNode(model, node->mChildren[i], scene);
+    }
+}
 
-    // vertex textrure coords
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+Mesh modelProcessMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
+{
+    Vertex* vertices;
+    size_t numVertices;
 
-    glBindVertexArray(0);
+    unsigned int* indices;
+    size_t numIndices;
+
+    Texture* textures;
+    size_t numTextures;
+
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+    {
+        Vertex vertex;
+        vertex.Position.x = mesh->mVertices[i].x;
+        vertex.Position.y = mesh->mVertices[i].y;
+        vertex.Position.z = mesh->mVertices[i].z;
+
+        vertex.Normal.x = mesh->mNormals[i].x;
+        vertex.Normal.y = mesh->mNormals[i].y;
+        vertex.Normal.z = mesh->mNormals[i].z;
+
+        if (mesh->mTextureCoords[0])
+        {
+            vec2s vec;
+            vertex.TexCoords.x = mesh->mTextureCoords[0]->x;
+            vertex.TexCoords.y = mesh->mTextureCoords[0]->y;
+        }
+        else 
+        {
+            vertex.TexCoords.x = 0.0f;
+            vertex.TexCoords.y = 0.0f;
+        }
+
+        vertices.push_back(vertex);
+    }
+
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+    {
+        struct aiFace face = mesh->mFaces[i];
+        for (unsigned int j = 0; j < face.mNumIndices; j++)
+        {
+            indices.push_back(face.mIndices[j]);
+        }
+    }
+
+    if (mesh->mMaterialIndex >= 0)
+    {
+        struct aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+        Texture* diffuseMaps = modelLoadMaterialTextures(model, material, aiTextureType_DIFFUSE, MODEL_TEXTURE_DIFFUSE);
+        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.begin());
+        Texture* specularMaps = modelLoadMaterialTextures(model, material, aiTextureType_SPECULAR, MODEL_TEXTURE_SPECULAR);
+    }
+
+    Mesh m = {
+        vertices: vertices,
+        numVertices: numVertices,
+
+        indices: indices,
+        numIndices: numIndices,
+
+        textures: textures,
+        numTextures: numTextures,
+    };
+
+    return m;
+}
+
+Texture* modelLoadMaterialTextures(Model* model, struct aiMaterial* mat, enum aiTextureType type, char* typeName)
+{
+    Texture* textures;
+    for(unsigned int i = 0; i < aiGetMaterialTextureCount(mat, type); i++)
+    {
+        struct aiString str;
+        aiGetMaterialTexture(mat, type, &str);
+        Texture texture;
+        texture.id = TextureFromFile(str.data, model->directory); // TODO: Implement this
+        texture.type = typeName;
+        texture.path = str;
+        textures.push_back(texture); // FIXME: make this c compatible
+    }
+
+    return textures;
 }

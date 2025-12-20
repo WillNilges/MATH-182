@@ -1,35 +1,23 @@
 #ifndef MODEL_H
 #define MODEL_H
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
-#include "cglm/types.h"
-#include "shader.h"
-
-char* MODEL_TEXTURE_DIFFUSE = "texture_diffuse";
-char* MODEL_TEXTURE_SPECULAR = "texture_specular";
-char* MODEL_MATERIAL_DOT = "material.";
+#include "mesh.h"
 
 typedef struct {
-    vec3 Position;
-    vec3 Normal;
-    vec2 TexCoords;
-} Vertex;
+    Mesh* meshes;
+    int numMeshes;
 
-typedef struct {
-    unsigned int id;
-    char* type;
-} Texture;
+    char* directory;
+} Model;
 
-typedef struct {
-    Vertex* vertices;
-    unsigned int* indices;
-    Texture* textures;
+void modelLoadModel(Model* model, char* path);
+void modelDraw(Model* model, Shader* shader);
 
-    unsigned int VAO, VBO, EBO;
-} Mesh;
-
-Mesh* NewMesh(Vertex* vertices, unsigned int* indices, Texture* textures);
-void meshDraw(Mesh* mesh, Shader* shader);
-
-void modelSetupMesh(Mesh* mesh);
+void modelProcessNode(Model* model, struct aiNode* node, const struct aiScene* scene);
+Mesh modelProcessMesh(Model* model, struct aiMesh* mesh, const struct aiScene* scene);
+Texture* modelLoadMaterialTextures(Model* model, struct aiMaterial* mat, enum aiTextureType type, char* typeName);
 
 #endif
