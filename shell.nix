@@ -10,16 +10,22 @@ pkgs.mkShell
   ];
 
   nativeBuildInputs = with pkgs; [
-    #clang-tools
-    #clang
+    # Compiler + Build System
     cmake
-    glfw
-    lua
-    glm
     gcc
-    gdb
     glibc
-    python312
-  ];
 
+    # Dependencies for MATH-182
+    glfw
+    glm
+    lua
+    assimp
+
+    # Dependencies for Neovim LSP setup
+    python312 # clang-format
+
+    # Tools for debugging
+    gdb
+    valgrind
+  ];
 }

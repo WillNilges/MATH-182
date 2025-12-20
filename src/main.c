@@ -399,8 +399,8 @@ int main()
         shaderSetVec3(shaderProgram, "dirLight.specular", lightColor);
 
         // Add some point lights
+        // FIXME: I'm 99% sure shaderGetUniformName is leaking memory
         for (unsigned int i = 0; i < nCubeLights; i++) {
-
             vec3 viewspaceLightPos;
             glm_mat4_mulv3(view, cubeLights[i].position, 1.0, viewspaceLightPos);
             shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "position"),  viewspaceLightPos);
@@ -415,16 +415,16 @@ int main()
 
         // Add the flashlight info to the shader
         for (unsigned int i = 0; i < nSpotLights; i++) {
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "position"), spotLights[i].position);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "direction"), spotLights[i].direction);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "cutOff"), spotLights[i].cutOff);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "position"),    spotLights[i].position);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "direction"),   spotLights[i].direction);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "cutOff"),      spotLights[i].cutOff);
             shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "outerCutOff"), spotLights[i].outerCutOff);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "ambient"), spotLights[i].ambient);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "diffuse"), spotLights[i].diffuse);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "specular"), spotLights[i].specular);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "constant"), spotLights[i].constant);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "linear"), spotLights[i].linear);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "quadratic"), spotLights[i].quadratic);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "ambient"),     spotLights[i].ambient);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "diffuse"),     spotLights[i].diffuse);
+            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "specular"),    spotLights[i].specular);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "constant"),    spotLights[i].constant);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "linear"),      spotLights[i].linear);
+            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "quadratic"),   spotLights[i].quadratic);
         }
 
         // Describe a material
