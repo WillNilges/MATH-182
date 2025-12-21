@@ -351,7 +351,7 @@ int main()
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, emissionCrate);
 
-    Model* guitar = newModel("models/guitar");
+    Model* guitar = newModel("models/backpack/backpack.obj");
 
     while(!glfwWindowShouldClose(window))
     {

@@ -5,7 +5,38 @@
 #include <assimp/postprocess.h>
 #include <stddef.h>
 
-#include "mesh.h"
+#include "cglm/types-struct.h"
+#include "shader.h"
+
+typedef struct {
+    vec3s Position;
+    vec3s Normal;
+    vec2s TexCoords;
+} Vertex;
+
+typedef struct {
+    unsigned int id;
+    char* type;
+    char* path;
+} Texture;
+
+typedef struct {
+    Vertex* vertices;
+    unsigned int numVertices;
+
+    unsigned int* indices;
+    unsigned int numIndices;
+
+    Texture* textures;
+    unsigned int numTextures;
+
+    unsigned int VAO, VBO, EBO;
+} Mesh;
+
+Mesh* newMesh(Vertex* vertices, size_t numVertices, unsigned int* indices, size_t numIndices, Texture* textures, size_t numTextures);
+void mesh_draw(Mesh* mesh, Shader* shader);
+
+void mesh_setup(Mesh* mesh);
 
 typedef struct {
     Mesh* meshes;

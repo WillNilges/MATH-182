@@ -1,16 +1,112 @@
 #include "model.h"
-#include "assimp/cimport.h"
-#include "assimp/material.h"
-#include "assimp/postprocess.h"
-#include "assimp/scene.h"
-#include "cglm/types.h"
-#include "mesh.h"
-#include "texture.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <assimp/cimport.h>
+#include <assimp/material.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "cglm/types.h"
+#include "texture.h"
+
+const char* MODEL_TEXTURE_DIFFUSE = "texture_diffuse";
+const char* MODEL_TEXTURE_SPECULAR = "texture_specular";
+const char* MODEL_MATERIAL_DOT = "material.";
+
+Mesh* newMesh(Vertex* vertices, size_t numVertices, unsigned int* indices, size_t numIndices, Texture* textures, size_t numTextures)
+{
+    Mesh* mesh = malloc(sizeof(Mesh));
+    mesh->vertices = vertices;
+    mesh->numVertices = numVertices;
+    mesh->indices = indices;
+    mesh->numIndices = numIndices;
+    mesh->textures = textures;
+    mesh->numTextures = numTextures;
+
+    return mesh;
+}
+
+void mesh_draw(Mesh* mesh, Shader* shader)
+{
+    unsigned int diffuseNr = 1;
+    unsigned int specularNr = 1;
+    for (unsigned int i = 0; i < mesh->numTextures; i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i); // Activate texture unit
+        // retrieve texture number (N in diffuse_textureN)
+        char* number;
+        char* type = mesh->textures[i].type;
+        if (strcmp(type, MODEL_TEXTURE_DIFFUSE) == 0)
+        {
+            size_t lenType = strlen(type);
+            size_t lenNumber = snprintf(NULL, 0, "%u", diffuseNr);
+            char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
+            snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
+            shaderSetFloat(shader, shaderVarName, i);
+            diffuseNr++;
+        }
+        else if (strcmp(type, MODEL_TEXTURE_SPECULAR) == 0)
+        {
+            size_t lenType = strlen(type);
+            size_t lenNumber = snprintf(NULL, 0, "%u", specularNr);
+            char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
+            snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
+            shaderSetFloat(shader, shaderVarName, i);
+            specularNr++;
+        }
+        glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
+    }
+    glActiveTexture(GL_TEXTURE0);
+
+    // Draw mesh
+    glBindVertexArray(mesh->VAO);
+    glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
+
+void mesh_setup(Mesh* mesh)
+{
+    glGenVertexArrays(1, &mesh->VAO);
+    glGenBuffers(1, &mesh->VBO);
+    glGenBuffers(1, &mesh->EBO);
+
+    glBindVertexArray(mesh->VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->VBO);
+
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(*mesh->vertices),
+        &mesh->vertices[0],
+        GL_STATIC_DRAW
+    );
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
+    glBufferData(
+        GL_ELEMENT_ARRAY_BUFFER,
+        sizeof(*mesh->indices),
+        &mesh->indices[0],
+        GL_STATIC_DRAW
+    );
+
+    // vertex positions
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+
+    // vertex normals
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+
+    // vertex textrure coords
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+
+    glBindVertexArray(0);
+}
 
 Model* newModel(char* path)
 {
@@ -79,7 +175,7 @@ void model_processNode(Model* model, struct aiNode* node, const struct aiScene* 
     }
 }
 
-Mesh model_ProcessMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
+Mesh model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
 {
     Vertex* vertices;
     size_t numVertices;
