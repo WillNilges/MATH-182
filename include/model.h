@@ -3,6 +3,7 @@
 #include <assimp/cimport.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <stddef.h>
 
 #include "mesh.h"
 
@@ -11,8 +12,12 @@ typedef struct {
     int numMeshes;
 
     char* directory;
+
+    Texture* texturesLoaded;
+    size_t numTexturesLoaded;
 } Model;
 
+Model* newModel(char* path);
 void model_loadModel(Model* model, char* path);
 void model_draw(Model* model, Shader* shader);
 

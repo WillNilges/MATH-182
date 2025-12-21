@@ -8,6 +8,7 @@
 #include "cglm/mat4.h"
 #include "cglm/util.h"
 #include "light.h"
+#include "model.h"
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
@@ -350,6 +351,8 @@ int main()
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, emissionCrate);
 
+    Model* guitar = newModel("models/guitar");
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -487,6 +490,8 @@ int main()
 
         // Unbind our vertex array
         glBindVertexArray(0);
+
+        model_draw(guitar, shaderProgram);
 
         // Swap buffers!
         glfwSwapBuffers(window);

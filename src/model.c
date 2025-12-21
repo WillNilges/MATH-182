@@ -6,12 +6,22 @@
 #include "cglm/types.h"
 #include "mesh.h"
 #include "texture.h"
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-void modelLoadModel(Model* model, char* path)
+Model* newModel(char* path)
+{
+    Model* model = malloc(sizeof(Model));
+
+    model_loadModel(model, path);
+
+    return model;
+}
+
+void model_loadModel(Model* model, char* path)
 {
     const struct aiScene* scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
     if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE)
@@ -157,19 +167,33 @@ Mesh model_ProcessMesh(Model * model, struct aiMesh* mesh, const struct aiScene*
 
 Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum aiTextureType type, char* typeName)
 {
+    // XXX: The Learnopengl optimization is going to fuck up my memory management
     Texture* textures;
     textures = malloc(sizeof(Texture) * aiGetMaterialTextureCount(mat, type));
     for(unsigned int i = 0; i < aiGetMaterialTextureCount(mat, type); i++)
     {
         struct aiString str;
-        aiGetMaterialTexture(mat, type, 0, &str);
+        aiGetMaterialTexture(mat, type, 0, &str, NULL, NULL, NULL, NULL, NULL, NULL);
         Texture texture;
         char texturePath[strlen(str.data) + strlen(model->directory) + 2];
         snprintf(texturePath, strlen(str.data) + strlen(model->directory) + 2, "%s/%s", model->directory, str.data);
-        texture.id = loadTexture(texturePath);
-        texture.type = typeName;
-        texture.path = str.data;
-        textures[i] = texture;
+        bool skipLoading = false;
+        for (unsigned int j = 0; j < model->numTexturesLoaded; j++)
+        {
+            if (strcmp(model->texturesLoaded[j].path, str.data) == 0)
+            {
+                textures[i] = model->texturesLoaded[j];
+                skipLoading = true;
+                break;
+            }
+        }
+        if (!skipLoading)
+        {
+            texture.id = loadTexture(texturePath);
+            texture.type = typeName;
+            texture.path = str.data;
+            textures[i] = texture;
+        }
     }
 
     return textures;
