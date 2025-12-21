@@ -19,7 +19,7 @@ Mesh* newMesh(Vertex* vertices, size_t numVertices, unsigned int* indices, size_
     return mesh;
 }
 
-void meshDraw(Mesh* mesh, Shader* shader)
+void mesh_draw(Mesh* mesh, Shader* shader)
 {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
@@ -57,7 +57,7 @@ void meshDraw(Mesh* mesh, Shader* shader)
     glBindVertexArray(0);
 }
 
-void meshSetup(Mesh* mesh)
+void mesh_setup(Mesh* mesh)
 {
     glGenVertexArrays(1, &mesh->VAO);
     glGenBuffers(1, &mesh->VBO);

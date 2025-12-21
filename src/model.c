@@ -5,7 +5,11 @@
 #include "assimp/scene.h"
 #include "cglm/types.h"
 #include "mesh.h"
+#include "texture.h"
+#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void modelLoadModel(Model* model, char* path)
 {
@@ -16,38 +20,56 @@ void modelLoadModel(Model* model, char* path)
         return;
     }
     model->directory = path;
-    modelProcessNode(model, scene->mRootNode, scene);
+    model_processNode(model, scene->mRootNode, scene);
 }
 
-void modelDraw(Model* model, Shader* shader)
+void model_draw(Model* model, Shader* shader)
 {
     for (unsigned int i = 0; i < model->numMeshes; i++)
     {
-        meshDraw(&model->meshes[i], shader);
+        mesh_draw(&model->meshes[i], shader);
     }
 }
 
-void modelProcessNode(Model* model, struct aiNode* node, const struct aiScene* scene)
+void model_processNode(Model* model, struct aiNode* node, const struct aiScene* scene)
 {
     // Process node's meshes (if any exist)
 
     // TODO: Allocate longer mesh array
+    // XXX: Does it matter what order we render meshes in? Let's find out!
+    // I might end up needing to somehow reverse this
 
+    // Make a new mesh array that can fit the new meshes
+    Mesh* newMeshes = malloc(sizeof(Mesh) * (node->mNumMeshes + model->numMeshes));
 
-    for(unsigned int i = 0; i < node->mNumMeshes; i++)
+    // Copy the old meshes into the new mesh array
+    // XXX: I might have to optimize this
+    memcpy(newMeshes, model->meshes, model->numMeshes);
+
+    // Create the new meshes ahead of the old meshes
+    for(unsigned int i = model->numMeshes; i < model->numMeshes + node->mNumMeshes; i++)
     {
         struct aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        model->meshes.push_back(modelProcessMesh(model, mesh, scene));
+        newMeshes[i] = model_processMesh(model, mesh, scene);
     }
+
+    // Update the number of meshes we have
+    model->numMeshes += node->mNumMeshes;
+
+    // Free the old array
+    free(model->meshes);
+
+    // Move the new mesh array to the object
+    model->meshes = newMeshes;
 
     // Then process meshes for any children
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
-        modelProcessNode(model, node->mChildren[i], scene);
+        model_processNode(model, node->mChildren[i], scene);
     }
 }
 
-Mesh modelProcessMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
+Mesh model_ProcessMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
 {
     Vertex* vertices;
     size_t numVertices;
@@ -58,47 +80,65 @@ Mesh modelProcessMesh(Model * model, struct aiMesh* mesh, const struct aiScene* 
     Texture* textures;
     size_t numTextures;
 
+    // Allocate our vertex array
+    vertices = malloc(sizeof(Vertex) * mesh->mNumVertices);
     for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
-        Vertex vertex;
-        vertex.Position.x = mesh->mVertices[i].x;
-        vertex.Position.y = mesh->mVertices[i].y;
-        vertex.Position.z = mesh->mVertices[i].z;
+        vertices[i].Position.x = mesh->mVertices[i].x;
+        vertices[i].Position.y = mesh->mVertices[i].y;
+        vertices[i].Position.z = mesh->mVertices[i].z;
 
-        vertex.Normal.x = mesh->mNormals[i].x;
-        vertex.Normal.y = mesh->mNormals[i].y;
-        vertex.Normal.z = mesh->mNormals[i].z;
+        vertices[i].Normal.x = mesh->mNormals[i].x;
+        vertices[i].Normal.y = mesh->mNormals[i].y;
+        vertices[i].Normal.z = mesh->mNormals[i].z;
 
         if (mesh->mTextureCoords[0])
         {
             vec2s vec;
-            vertex.TexCoords.x = mesh->mTextureCoords[0]->x;
-            vertex.TexCoords.y = mesh->mTextureCoords[0]->y;
+            vertices[i].TexCoords.x = mesh->mTextureCoords[0]->x;
+            vertices[i].TexCoords.y = mesh->mTextureCoords[0]->y;
         }
         else 
         {
-            vertex.TexCoords.x = 0.0f;
-            vertex.TexCoords.y = 0.0f;
+            vertices[i].TexCoords.x = 0.0f;
+            vertices[i].TexCoords.y = 0.0f;
         }
-
-        vertices.push_back(vertex);
     }
+
+    // Figure out how many indices we have
+    numIndices = 0;
+    size_t currentIndex;
+    for (unsigned int i = 0; i < mesh->mNumFaces; i++)
+    {
+        numIndices += mesh->mFaces[i].mNumIndices;
+    }
+    indices = malloc(sizeof(unsigned int) * numIndices);
 
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         struct aiFace face = mesh->mFaces[i];
         for (unsigned int j = 0; j < face.mNumIndices; j++)
         {
-            indices.push_back(face.mIndices[j]);
+            //indices.push_back(face.mIndices[j]);
+            indices[currentIndex] = face.mIndices[j];
+            currentIndex++;
         }
     }
 
     if (mesh->mMaterialIndex >= 0)
     {
         struct aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        Texture* diffuseMaps = modelLoadMaterialTextures(model, material, aiTextureType_DIFFUSE, MODEL_TEXTURE_DIFFUSE);
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.begin());
-        Texture* specularMaps = modelLoadMaterialTextures(model, material, aiTextureType_SPECULAR, MODEL_TEXTURE_SPECULAR);
+        Texture* diffuseMaps = model_loadMaterialTextures(model, material, aiTextureType_DIFFUSE, MODEL_TEXTURE_DIFFUSE);
+        //textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+        size_t numDiffuseMaps = aiGetMaterialTextureCount(material, aiTextureType_SPECULAR);
+
+        Texture* specularMaps = model_loadMaterialTextures(model, material, aiTextureType_SPECULAR, MODEL_TEXTURE_SPECULAR);
+        size_t numSpecularMaps = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
+        //textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        textures = malloc(sizeof(Texture) * (numDiffuseMaps + numSpecularMaps));
+
+        memcpy(textures, diffuseMaps, numDiffuseMaps);
+        memcpy(&textures[numDiffuseMaps], specularMaps, numSpecularMaps); // XXX: Will this work?
     }
 
     Mesh m = {
@@ -115,18 +155,21 @@ Mesh modelProcessMesh(Model * model, struct aiMesh* mesh, const struct aiScene* 
     return m;
 }
 
-Texture* modelLoadMaterialTextures(Model* model, struct aiMaterial* mat, enum aiTextureType type, char* typeName)
+Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum aiTextureType type, char* typeName)
 {
     Texture* textures;
+    textures = malloc(sizeof(Texture) * aiGetMaterialTextureCount(mat, type));
     for(unsigned int i = 0; i < aiGetMaterialTextureCount(mat, type); i++)
     {
         struct aiString str;
-        aiGetMaterialTexture(mat, type, &str);
+        aiGetMaterialTexture(mat, type, 0, &str);
         Texture texture;
-        texture.id = TextureFromFile(str.data, model->directory); // TODO: Implement this
+        char texturePath[strlen(str.data) + strlen(model->directory) + 2];
+        snprintf(texturePath, strlen(str.data) + strlen(model->directory) + 2, "%s/%s", model->directory, str.data);
+        texture.id = loadTexture(texturePath);
         texture.type = typeName;
-        texture.path = str;
-        textures.push_back(texture); // FIXME: make this c compatible
+        texture.path = str.data;
+        textures[i] = texture;
     }
 
     return textures;

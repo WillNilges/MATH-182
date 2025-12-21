@@ -13,11 +13,11 @@ typedef struct {
     char* directory;
 } Model;
 
-void modelLoadModel(Model* model, char* path);
-void modelDraw(Model* model, Shader* shader);
+void model_loadModel(Model* model, char* path);
+void model_draw(Model* model, Shader* shader);
 
-void modelProcessNode(Model* model, struct aiNode* node, const struct aiScene* scene);
-Mesh modelProcessMesh(Model* model, struct aiMesh* mesh, const struct aiScene* scene);
-Texture* modelLoadMaterialTextures(Model* model, struct aiMaterial* mat, enum aiTextureType type, char* typeName);
+void model_processNode(Model* model, struct aiNode* node, const struct aiScene* scene);
+Mesh model_processMesh(Model* model, struct aiMesh* mesh, const struct aiScene* scene);
+Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum aiTextureType type, char* typeName);
 
 #endif

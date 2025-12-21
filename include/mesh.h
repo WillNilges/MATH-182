@@ -18,6 +18,7 @@ typedef struct {
 typedef struct {
     unsigned int id;
     char* type;
+    char* path;
 } Texture;
 
 typedef struct {
@@ -34,8 +35,8 @@ typedef struct {
 } Mesh;
 
 Mesh* newMesh(Vertex* vertices, size_t numVertices, unsigned int* indices, size_t numIndices, Texture* textures, size_t numTextures);
-void meshDraw(Mesh* mesh, Shader* shader);
+void mesh_draw(Mesh* mesh, Shader* shader);
 
-void meshSetup(Mesh* mesh);
+void mesh_setup(Mesh* mesh);
 
 #endif
