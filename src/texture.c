@@ -6,6 +6,7 @@
 
 int loadTexture(char* path)
 {
+    printf("Loading texture %s\n", path);
     // Generate texture
     unsigned int texture;
     glGenTextures(1, &texture);

@@ -12,6 +12,8 @@
 #include <string.h>
 
 #include "cglm/types.h"
+//#include "libgen.h"
+#include "libgen.h"
 #include "texture.h"
 
 const char* MODEL_TEXTURE_DIFFUSE = "texture_diffuse";
@@ -112,10 +114,31 @@ Model* newModel(char* path)
 {
     Model* model = malloc(sizeof(Model));
 
+    model->meshes = NULL;
+    model->numMeshes = 0;
+
+    model->directory = NULL;
+
+    model->texturesLoaded = NULL;
+    model->numTexturesLoaded = 0;
+
     model_loadModel(model, path);
 
     return model;
 }
+
+// FIXME: WHAT THE FUCK
+  char* chom_dirname(char* path) {
+    static char dot[] = ".";
+    if (!path) return dot;
+    char* last_slash = NULL;
+    for (char* p = path; *p; p++) {
+      if (*p == '/') last_slash = p;
+    }
+    if (!last_slash) return dot;
+    *last_slash = '\0';
+    return path;
+  }
 
 void model_loadModel(Model* model, char* path)
 {
@@ -125,7 +148,7 @@ void model_loadModel(Model* model, char* path)
         printf("ERROR::ASSIMP::%s\n", aiGetErrorString());
         return;
     }
-    model->directory = path;
+    model->directory = dirname(path);
     model_processNode(model, scene->mRootNode, scene);
 }
 
@@ -146,31 +169,22 @@ void model_processNode(Model* model, struct aiNode* node, const struct aiScene* 
     // I might end up needing to somehow reverse this
 
     // Make a new mesh array that can fit the new meshes
-    Mesh* newMeshes = malloc(sizeof(Mesh) * (node->mNumMeshes + model->numMeshes));
-
-    // Copy the old meshes into the new mesh array
-    // XXX: I might have to optimize this
-    memcpy(newMeshes, model->meshes, model->numMeshes);
+    model->meshes = realloc(model->meshes, sizeof(Mesh) * (node->mNumMeshes + model->numMeshes));
 
     // Create the new meshes ahead of the old meshes
-    for(unsigned int i = model->numMeshes; i < model->numMeshes + node->mNumMeshes; i++)
+    for(unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         struct aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        newMeshes[i] = model_processMesh(model, mesh, scene);
+        model->meshes[model->numMeshes + i] = model_processMesh(model, mesh, scene);
     }
 
     // Update the number of meshes we have
     model->numMeshes += node->mNumMeshes;
 
-    // Free the old array
-    free(model->meshes);
-
-    // Move the new mesh array to the object
-    model->meshes = newMeshes;
-
     // Then process meshes for any children
     for(unsigned int i = 0; i < node->mNumChildren; i++)
     {
+        printf("Processing child %d\n", i);
         model_processNode(model, node->mChildren[i], scene);
     }
 }
@@ -213,7 +227,7 @@ Mesh model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene*
 
     // Figure out how many indices we have
     numIndices = 0;
-    size_t currentIndex;
+    size_t currentIndex = 0;
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         numIndices += mesh->mFaces[i].mNumIndices;
@@ -265,19 +279,25 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
 {
     // XXX: The Learnopengl optimization is going to fuck up my memory management
     Texture* textures;
-    textures = malloc(sizeof(Texture) * aiGetMaterialTextureCount(mat, type));
+    // This name is a bit misleading. We might not actually need to load these textures.
+    size_t additionalTextures = sizeof(Texture) * aiGetMaterialTextureCount(mat, type);
+    textures = malloc(additionalTextures);
+    model->texturesLoaded = realloc(model->texturesLoaded, (sizeof(Texture) * model->numTexturesLoaded) + additionalTextures);
     for(unsigned int i = 0; i < aiGetMaterialTextureCount(mat, type); i++)
     {
         struct aiString str;
-        aiGetMaterialTexture(mat, type, 0, &str, NULL, NULL, NULL, NULL, NULL, NULL);
+        aiGetMaterialTexture(mat, type, i, &str, NULL, NULL, NULL, NULL, NULL, NULL);
         Texture texture;
-        char texturePath[strlen(str.data) + strlen(model->directory) + 2];
-        snprintf(texturePath, strlen(str.data) + strlen(model->directory) + 2, "%s/%s", model->directory, str.data);
+        size_t lenTexturePath = strlen(str.data) + strlen(model->directory) + 2;
+        char texturePath[lenTexturePath];
+        snprintf(texturePath, lenTexturePath, "%s/%s", model->directory, str.data);
         bool skipLoading = false;
+        printf("Do I need to load %s?\n", str.data);
         for (unsigned int j = 0; j < model->numTexturesLoaded; j++)
         {
             if (strcmp(model->texturesLoaded[j].path, str.data) == 0)
             {
+                printf("No.\n");
                 textures[i] = model->texturesLoaded[j];
                 skipLoading = true;
                 break;
@@ -285,10 +305,13 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
         }
         if (!skipLoading)
         {
+            printf("Yes.\n");
             texture.id = loadTexture(texturePath);
             texture.type = typeName;
             texture.path = str.data;
             textures[i] = texture;
+            model->texturesLoaded[model->numTexturesLoaded] = texture;
+            model->numTexturesLoaded++;
         }
     }
 

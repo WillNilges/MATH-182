@@ -40,7 +40,7 @@ void mesh_setup(Mesh* mesh);
 
 typedef struct {
     Mesh* meshes;
-    int numMeshes;
+    size_t numMeshes;
 
     char* directory;
 

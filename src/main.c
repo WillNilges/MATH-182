@@ -351,7 +351,9 @@ int main()
     glActiveTexture(GL_TEXTURE2);
     glBindTexture(GL_TEXTURE_2D, emissionCrate);
 
-    Model* guitar = newModel("models/backpack/backpack.obj");
+    // XXX: Need to declare it like this so that dirname can edit it later :/
+    char backpackModelPath[] = "models/backpack/backpack.obj";
+    Model* guitar = newModel(backpackModelPath);
 
     while(!glfwWindowShouldClose(window))
     {
