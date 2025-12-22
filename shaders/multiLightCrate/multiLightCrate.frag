@@ -59,7 +59,6 @@ uniform Material material;
 
 out vec4 FragColor;
 
-// FIXME: THIS SHIT ISN'T WORKING
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -178,17 +177,15 @@ void main()
     result += CalcDirLight(dirLight, norm, viewDir);
 
     // phase 2: Point lights
-    /*
-                    for (int i = 0; i < NR_POINT_LIGHTS; i++)
-                    {
-                        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
-                    }
+    for (int i = 0; i < NR_POINT_LIGHTS; i++)
+    {
+        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+    }
 
-                    for (int i = 0; i < NR_SPOT_LIGHTS; i++)
-                    {
-                        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
-                    }
-                    */
+    for (int i = 0; i < NR_SPOT_LIGHTS; i++)
+    {
+        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
+    }
 
     FragColor = vec4(result, 1.0);
 }

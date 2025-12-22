@@ -268,7 +268,6 @@ int main()
     // We need to define a point that the light emmenates from. This should
     // be the same as the position of the cube that represents the light.
     PointLight cubeLights[] = {
-        /*
         {
             { 3.0f, 4.0f, -3.0f },
             1.0f,
@@ -287,12 +286,10 @@ int main()
             { 0.1f, 0.0f, 0.1f },
             { 0.5f, 0.0f, 0.5f },
         },
-        */
     };
     size_t nCubeLights = sizeof(cubeLights)/sizeof(cubeLights[0]);
 
     SpotLight spotLights[] = {
-        /*
         {
             { 0.0f, 0.0f, 0.0f }, 
             { 0.0f, 0.0f, -1.0f }, 
@@ -308,7 +305,6 @@ int main()
             0.09f,
             0.032f,
         },
-        */
     };
     size_t nSpotLights = sizeof(spotLights)/sizeof(spotLights[0]);
 
@@ -347,7 +343,6 @@ int main()
     int emissionCrate = loadTexture("textures/matrix.jpg");
 
     // XXX: Need to declare it like this so that dirname can edit it later :/
-    //
     //char backpackModelPath[] = "models/backpack/backpack.obj";
     //Model* backpack = newModel(backpackModelPath);
 
@@ -502,12 +497,14 @@ int main()
         // Unbind our vertex array
         glBindVertexArray(0);
 
-        //mat4 backpackModel;
-        //glm_mat4_identity(backpackModel);
-        //vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
-        //glm_translate(backpackModel, backpackPosition);
-        //shaderSetMat4v(shaderProgram, "model", backpackModel);
-        //model_draw(backpack, shaderProgram);
+        /*
+        mat4 backpackModel;
+        glm_mat4_identity(backpackModel);
+        vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
+        glm_translate(backpackModel, backpackPosition);
+        shaderSetMat4v(shaderProgram, "model", backpackModel);
+        model_draw(backpack, shaderProgram);
+        */
 
         // Swap buffers!
         glfwSwapBuffers(window);
