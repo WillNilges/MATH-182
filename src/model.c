@@ -19,7 +19,7 @@
 
 //const char MODEL_TEXTURE_DIFFUSE[] = "texture_diffuse";
 //const char MODEL_TEXTURE_SPECULAR[] = "texture_specular";
-const char MODEL_MATERIAL_DOT[] = "material.%s%d";
+const char MODEL_MATERIAL_DOT[] = "texture_%s%d";
 
 const char MODEL_TEXTURE_DIFFUSE[] = "diffuse";
 const char MODEL_TEXTURE_SPECULAR[] = "specular";
@@ -57,9 +57,8 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
 
-            printf("setting float %s\n", shaderVarName);
-            //shaderSetFloat(shader, shaderVarName, i);
-            shaderSetInt(shader, "material.diffuse", i);
+            printf("setting int %s\n", shaderVarName);
+            shaderSetInt(shader, shaderVarName, i);
             diffuseNr++;
         }
         else if (strcmp(type, MODEL_TEXTURE_SPECULAR) == 0)
@@ -69,14 +68,16 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
 
-            printf("setting float %s\n", shaderVarName);
+            printf("setting int %s\n", shaderVarName);
 
-            shaderSetInt(shader, "material.specular", i);
+            shaderSetInt(shader, shaderVarName, i);
             specularNr++;
         }
         glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
+
+    printf("Indices: %zu\n", mesh->numIndices);
 
     // Draw mesh
     glBindVertexArray(mesh->VAO);
@@ -95,7 +96,7 @@ void mesh_setup(Mesh* mesh)
 
     glBufferData(
         GL_ARRAY_BUFFER,
-        sizeof(*mesh->vertices),
+        sizeof(Vertex),
         &mesh->vertices[0],
         GL_STATIC_DRAW
     );
@@ -103,7 +104,7 @@ void mesh_setup(Mesh* mesh)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(*mesh->indices),
+        sizeof(unsigned int),
         &mesh->indices[0],
         GL_STATIC_DRAW
     );

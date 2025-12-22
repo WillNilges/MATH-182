@@ -154,197 +154,21 @@ int main()
     // Initialize the camera
     camera = newCameraWithDefaults();
 
-    Shader* shaderProgram = newShader(
-        "shaders/multiLightCrate/multiLightCrate.vert",
-        "shaders/multiLightCrate/multiLightCrate.frag"
+    // Set up a shader for our backpack
+    Shader* backpackShader = newShader(
+        "shaders/backpack/backpack.vert",
+        "shaders/backpack/backpack.frag"
     );
 
-    if (shaderProgram == NULL) {
+    if (backpackShader == NULL) {
         printf("I'm outta here!\n");
         glfwTerminate();
         return -1;
     }
-
-    Shader* lightSourceShaderProgram = newShader(
-        "shaders/shader.vert",
-        "shaders/lightSource.frag"
-    );
-
-    if (lightSourceShaderProgram == NULL) {
-        printf("I'm outta here!\n");
-        glfwTerminate();
-        return -1;
-    }
-
-    // Create a buffer and put some data in it. This is our cube "model"
-    // with some texture data attached.
-    float vertices[] = {
-        // positions          // normals           // texture coords
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
-    };
-
-    // Create Vertex Array Objects and Vertex Buffer Objects
-    unsigned int VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe mode
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Wireframe mode-nt
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(
-        GL_ARRAY_BUFFER,
-        sizeof(vertices),
-        vertices,
-        GL_STATIC_DRAW
-    );
-
-    // Get the vertex data out of the array
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Also get the normal data out of the array
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Texture data
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    // Need another VAO for the light cube
-    unsigned int lightVAO;
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    // Bind the original buffer, because it already contains the data.
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Enable Depth Buffer
-    glEnable(GL_DEPTH_TEST);
-
-    // We need to define a point that the light emmenates from. This should
-    // be the same as the position of the cube that represents the light.
-    PointLight cubeLights[] = {
-        {
-            { 3.0f, 4.0f, -3.0f },
-            1.0f,
-            0.09f,
-            0.032f,
-            { 0.0f, 1.0f, 0.0f },
-            { 0.0f, 0.1f, 0.0f },
-            { 0.0f, 0.5f, 0.0f },
-        },
-        {
-            { -10.0f, 4.0f, -10.0f },
-            1.0f,
-            0.09f,
-            0.032f,
-            { 1.0f, 0.0f, 1.0f },
-            { 0.1f, 0.0f, 0.1f },
-            { 0.5f, 0.0f, 0.5f },
-        },
-    };
-    size_t nCubeLights = sizeof(cubeLights)/sizeof(cubeLights[0]);
-
-    SpotLight spotLights[] = {
-        {
-            { 0.0f, 0.0f, 0.0f }, 
-            { 0.0f, 0.0f, -1.0f }, 
-
-            cos(glm_rad(12.5f)),
-            cos(glm_rad(20.5f)),
-
-            { 0.1f, 0.1f, 0.1f },
-            { 0.5f, 0.5f, 0.5f },
-            { 1.0f, 1.0f, 1.0f },
-
-            1.0f,
-            0.09f,
-            0.032f,
-        },
-    };
-    size_t nSpotLights = sizeof(spotLights)/sizeof(spotLights[0]);
-
-    /*
-    vec3 lightPos[] = {
-        { 3.0f, 4.0f, -3.0f },
-        { 6.0f, 4.0f, -3.0f },
-    };
-    vec3 cubeLightPositions[] = {
-        { lightPos[0][0], lightPos[0][1], lightPos[0][2] },
-        { lightPos[1][0], lightPos[1][1], lightPos[1][2] },
-    };*/
-
-
-    // And a cube to be hit by the light
-    vec3 cubePositions[] = {
-        { 2.0f,  1.0f, -3.0f}, 
-        { 2.0f,  5.0f, -15.0f}, 
-        {-1.5f, -2.2f, -2.5f},  
-        {-3.8f, -2.0f, -12.3f},  
-        { 2.4f, -0.4f, -3.5f},  
-        {-1.7f,  3.0f, -7.5f},  
-        { 1.3f, -2.0f, -2.5f},  
-        { 1.5f,  2.0f, -2.5f}, 
-        { 1.5f,  0.2f, -1.5f}, 
-        {-1.3f,  1.0f, -1.5f},
-    };
-
-    size_t nCubePositions = sizeof(cubePositions)/sizeof(cubePositions[0]);
-
-    // Flip images vertically since OpenGL's coordinates start at a different
-    // corner.
-    stbi_set_flip_vertically_on_load(1);
-    int ambientCrate = loadTexture("textures/container2.png");
-    int specularCrate = loadTexture("textures/container2_specular.png");
-    int emissionCrate = loadTexture("textures/matrix.jpg");
 
     // XXX: Need to declare it like this so that dirname can edit it later :/
-    //char backpackModelPath[] = "models/backpack/backpack.obj";
-    //Model* backpack = newModel(backpackModelPath);
+    char backpackModelPath[] = "models/backpack/backpack.obj";
+    Model* backpack = newModel(backpackModelPath);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -354,145 +178,51 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Render stuff!!!!
+        // Clear the screen with a color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // COOL ASS FUCKING CUBE
-        vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
-        vec3 ambientColor = { 0.1f, 0.1f, 0.1f };
-        vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
-
-        // Shader for the cuuuuubes!
-        shaderUse(shaderProgram);
+        // Set backpack shader as active
+        shaderUse(backpackShader);
 
         mat4 view;
         cameraGetViewMatrix(camera, view);
-        shaderSetMat4v(shaderProgram, "view", view);
+        shaderSetMat4v(backpackShader, "view", view);
 
         mat4 projection;
         glm_mat4_identity(projection);
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
-        shaderSetMat4v(shaderProgram, "projection", projection);
-
-        // Set the cubes' textures as active
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, ambientCrate);
-
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, specularCrate);
-
-        glActiveTexture(GL_TEXTURE2);
-        glBindTexture(GL_TEXTURE_2D, emissionCrate);
+        shaderSetMat4v(backpackShader, "projection", projection);
 
         vec3 zero = { 0.0f, 0.0f, 0.0f };
         vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
 
         // Set up the directional light
         vec3 lightDir = { -0.2f, -1.0f, -0.3f };
-        shaderSetVec3(shaderProgram, "dirLight.direction", lightDir);
-        shaderSetVec3(shaderProgram, "dirLight.ambient", ambientColor);
-        shaderSetVec3(shaderProgram, "dirLight.diffuse", diffuseColor);
-        shaderSetVec3(shaderProgram, "dirLight.specular", lightColor);
 
-        // Add some point lights
-        // FIXME: I'm 99% sure shaderGetUniformName is leaking memory
-        for (unsigned int i = 0; i < nCubeLights; i++) {
-            vec3 viewspaceLightPos;
-            glm_mat4_mulv3(view, cubeLights[i].position, 1.0, viewspaceLightPos);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "position"),  viewspaceLightPos);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "constant"),  cubeLights[i].constant);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "linear"),    cubeLights[i].linear);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("pointLights", i, "quadratic"), cubeLights[i].quadratic);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "ambient"),   cubeLights[i].ambient);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "diffuse"),   cubeLights[i].diffuse);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("pointLights", i, "specular"),  cubeLights[i].specular);
+        // Lighting color information
+        vec3 ambientColor = { 0.1f, 0.1f, 0.1f };
+        vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
+        vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
 
-        }
+        shaderSetVec3(backpackShader, "dirLight.direction", lightDir);
+        shaderSetVec3(backpackShader, "dirLight.ambient", ambientColor);
+        shaderSetVec3(backpackShader, "dirLight.diffuse", diffuseColor);
+        shaderSetVec3(backpackShader, "dirLight.specular", lightColor);
 
-        // Add the flashlight info to the shader
-        for (unsigned int i = 0; i < nSpotLights; i++) {
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "position"),    spotLights[i].position);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "direction"),   spotLights[i].direction);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "cutOff"),      spotLights[i].cutOff);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "outerCutOff"), spotLights[i].outerCutOff);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "ambient"),     spotLights[i].ambient);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "diffuse"),     spotLights[i].diffuse);
-            shaderSetVec3(shaderProgram,  shaderGetUniformName("spotLights", i, "specular"),    spotLights[i].specular);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "constant"),    spotLights[i].constant);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "linear"),      spotLights[i].linear);
-            shaderSetFloat(shaderProgram, shaderGetUniformName("spotLights", i, "quadratic"),   spotLights[i].quadratic);
-        }
-
-        // Describe a material
-        shaderSetInt(shaderProgram, "material.diffuse", 0);
-        shaderSetInt(shaderProgram, "material.specular", 1);
-        shaderSetInt(shaderProgram, "material.emission", 2);
-        shaderSetFloat(shaderProgram, "material.shininess", 0.5f * 128.0f);
-
-        // --- Draw cubes ---
-        glBindVertexArray(VAO);
-
-        for (unsigned int i = 0; i < nCubePositions; i++)
-        {
-            mat4 cubeModel;
-            glm_mat4_identity(cubeModel);
-            glm_translate(cubeModel, cubePositions[i]);
-            float angle = 20.0f * i;
-            vec3 cubeAxis = { 1.0f, 0.3f, 0.5f };
-            if (i % 3 == 0)
-            {
-                angle += glfwGetTime();
-            }
-            glm_rotate(cubeModel, angle, cubeAxis);
-            shaderSetMat4v(shaderProgram, "model", cubeModel);
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-
-        // --- Draw lights ---
-        shaderUse(lightSourceShaderProgram);
-
-        // Send the view and projection matricies to the light shader
-        shaderSetMat4v(shaderProgram, "view", view);
-        shaderSetMat4v(shaderProgram, "projection", projection);
-
-        glBindVertexArray(lightVAO);
-
-        for (unsigned int i = 0; i < nCubeLights; i++) {
-            shaderSetVec3(lightSourceShaderProgram, "lightColor", cubeLights[i].specular);
-            mat4 lightCubeModel;
-            glm_mat4_identity(lightCubeModel);
-            glm_translate(lightCubeModel, cubeLights[i].position);
-            vec3 lightCubeModelScale = { 0.2f, 0.2f, 0.2f };
-            glm_scale(lightCubeModel, lightCubeModelScale);
-            shaderSetMat4v(lightSourceShaderProgram, "model", lightCubeModel);
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
-
-        // Unbind our vertex array
-        glBindVertexArray(0);
-
-        /*
         // Draw backpack
         mat4 backpackModel;
         glm_mat4_identity(backpackModel);
         vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
         glm_translate(backpackModel, backpackPosition);
-        shaderSetMat4v(shaderProgram, "model", backpackModel);
-        model_draw(backpack, shaderProgram);
-        */
+        shaderSetMat4v(backpackShader, "model", backpackModel);
+        model_draw(backpack, backpackShader);
 
         // Swap buffers!
         glfwSwapBuffers(window);
         // Read inputs!
         glfwPollEvents();
     }
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    //glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;
