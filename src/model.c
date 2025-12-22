@@ -16,9 +16,9 @@
 #include "libgen.h"
 #include "texture.h"
 
-const char* MODEL_TEXTURE_DIFFUSE = "texture_diffuse";
-const char* MODEL_TEXTURE_SPECULAR = "texture_specular";
-const char* MODEL_MATERIAL_DOT = "material.";
+const char MODEL_TEXTURE_DIFFUSE[] = "texture_diffuse";
+const char MODEL_TEXTURE_SPECULAR[] = "texture_specular";
+const char MODEL_MATERIAL_DOT[] = "material.";
 
 Mesh* newMesh(Vertex* vertices, size_t numVertices, unsigned int* indices, size_t numIndices, Texture* textures, size_t numTextures)
 {
@@ -37,18 +37,23 @@ void mesh_draw(Mesh* mesh, Shader* shader)
 {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
+
+    printf("Num textures: %zu\n", mesh->numTextures);
     for (unsigned int i = 0; i < mesh->numTextures; i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // Activate texture unit
         // retrieve texture number (N in diffuse_textureN)
         char* number;
         char* type = mesh->textures[i].type;
+        printf("Texture: %s, Type: %s\n", mesh->textures[i].path, type);
         if (strcmp(type, MODEL_TEXTURE_DIFFUSE) == 0)
         {
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", diffuseNr);
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
+
+            printf("setting float %s\n", shaderVarName);
             shaderSetFloat(shader, shaderVarName, i);
             diffuseNr++;
         }
@@ -58,6 +63,8 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             size_t lenNumber = snprintf(NULL, 0, "%u", specularNr);
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
+
+            printf("setting float %s\n", shaderVarName);
             shaderSetFloat(shader, shaderVarName, i);
             specularNr++;
         }
@@ -192,7 +199,7 @@ void model_processNode(Model* model, struct aiNode* node, const struct aiScene* 
 Mesh model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
 {
     Vertex* vertices;
-    size_t numVertices;
+    //size_t numVertices;
 
     unsigned int* indices;
     size_t numIndices;
@@ -259,11 +266,12 @@ Mesh model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene*
 
         memcpy(textures, diffuseMaps, numDiffuseMaps);
         memcpy(&textures[numDiffuseMaps], specularMaps, numSpecularMaps); // XXX: Will this work?
+        numTextures = numDiffuseMaps + numSpecularMaps;
     }
 
     Mesh m = {
         vertices: vertices,
-        numVertices: numVertices,
+        numVertices: mesh->mNumVertices,
 
         indices: indices,
         numIndices: numIndices,
@@ -279,25 +287,26 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
 {
     // XXX: The Learnopengl optimization is going to fuck up my memory management
     Texture* textures;
-    // This name is a bit misleading. We might not actually need to load these textures.
-    size_t additionalTextures = sizeof(Texture) * aiGetMaterialTextureCount(mat, type);
-    textures = malloc(additionalTextures);
-    model->texturesLoaded = realloc(model->texturesLoaded, (sizeof(Texture) * model->numTexturesLoaded) + additionalTextures);
+    size_t textureCount = aiGetMaterialTextureCount(mat, type);
+    // We might use this space, we might not.
+    size_t lenTextures = sizeof(Texture) * textureCount;
+    textures = malloc(lenTextures);
+    // Increase the size of the reference texture array to fit the maybe new ones.
+    // XXX: Very inefficient oh god
+    model->texturesLoaded = realloc(model->texturesLoaded, sizeof(Texture) * (model->numTexturesLoaded + textureCount));
+    size_t newTextures = 0;
     for(unsigned int i = 0; i < aiGetMaterialTextureCount(mat, type); i++)
     {
         struct aiString str;
         aiGetMaterialTexture(mat, type, i, &str, NULL, NULL, NULL, NULL, NULL, NULL);
-        Texture texture;
         size_t lenTexturePath = strlen(str.data) + strlen(model->directory) + 2;
         char texturePath[lenTexturePath];
         snprintf(texturePath, lenTexturePath, "%s/%s", model->directory, str.data);
         bool skipLoading = false;
-        printf("Do I need to load %s?\n", str.data);
         for (unsigned int j = 0; j < model->numTexturesLoaded; j++)
         {
             if (strcmp(model->texturesLoaded[j].path, str.data) == 0)
             {
-                printf("No.\n");
                 textures[i] = model->texturesLoaded[j];
                 skipLoading = true;
                 break;
@@ -305,15 +314,17 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
         }
         if (!skipLoading)
         {
-            printf("Yes.\n");
-            texture.id = loadTexture(texturePath);
-            texture.type = typeName;
-            texture.path = str.data;
-            textures[i] = texture;
-            model->texturesLoaded[model->numTexturesLoaded] = texture;
-            model->numTexturesLoaded++;
+            printf("Loading texture %s of type %s...\n", str.data, typeName);
+            textures[i].id = loadTexture(texturePath);
+            textures[i].type = typeName;
+            textures[i].path = str.data;
+            model->texturesLoaded[model->numTexturesLoaded + i] = textures[i];
+            newTextures++;
         }
     }
+
+    model->numTexturesLoaded += newTextures;
+
 
     return textures;
 }

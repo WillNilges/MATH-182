@@ -353,7 +353,7 @@ int main()
 
     // XXX: Need to declare it like this so that dirname can edit it later :/
     char backpackModelPath[] = "models/backpack/backpack.obj";
-    Model* guitar = newModel(backpackModelPath);
+    Model* backpack = newModel(backpackModelPath);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -465,6 +465,8 @@ int main()
         // --- Draw the light!!! ---
         shaderUse(lightSourceShaderProgram);
 
+        // Set up the camera matrices we'll be using for everything using this
+        // shader.
         //mat4 view;
         cameraGetViewMatrix(camera, view);
 
@@ -493,7 +495,12 @@ int main()
         // Unbind our vertex array
         glBindVertexArray(0);
 
-        model_draw(guitar, shaderProgram);
+        mat4 backpackModel;
+        glm_mat4_identity(backpackModel);
+        vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
+        glm_translate(backpackModel, backpackPosition);
+        shaderSetMat4v(shaderProgram, "model", backpackModel);
+        model_draw(backpack, shaderProgram);
 
         // Swap buffers!
         glfwSwapBuffers(window);

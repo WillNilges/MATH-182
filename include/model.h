@@ -22,13 +22,13 @@ typedef struct {
 
 typedef struct {
     Vertex* vertices;
-    unsigned int numVertices;
+    size_t numVertices;
 
     unsigned int* indices;
-    unsigned int numIndices;
+    size_t numIndices;
 
     Texture* textures;
-    unsigned int numTextures;
+    size_t numTextures;
 
     unsigned int VAO, VBO, EBO;
 } Mesh;
