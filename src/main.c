@@ -354,10 +354,6 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Make the light circle the cube (kinda. It's not perfect.)
-        //lightPos[2] = sin(currentFrame) * 5.0f;
-        //lightPos[0] = cos(currentFrame) * 5.0f;
-
         // Render stuff!!!!
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -377,9 +373,6 @@ int main()
         mat4 projection;
         glm_mat4_identity(projection);
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
-
-        // Send the matricies to the shaders
-        shaderSetMat4v(shaderProgram, "view", view);
         shaderSetMat4v(shaderProgram, "projection", projection);
 
         // Set the cubes' textures as active
@@ -391,12 +384,6 @@ int main()
 
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, emissionCrate);
-
-        // Send the lighting information to the shader.
-        //vec3 viewspaceLightPos;
-        //glm_mat4_mulv3(view, lightPos[0], 1.0, viewspaceLightPos);
-        //vec3 viewspaceCameraFront;
-        //glm_mat4_mulv3(view, camera->front, 1.0, viewspaceCameraFront);
 
         vec3 zero = { 0.0f, 0.0f, 0.0f };
         vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
@@ -443,8 +430,7 @@ int main()
         shaderSetInt(shaderProgram, "material.emission", 2);
         shaderSetFloat(shaderProgram, "material.shininess", 0.5f * 128.0f);
 
-
-        // DRAW THE FUCKING CUBE!
+        // --- Draw cubes ---
         glBindVertexArray(VAO);
 
         for (unsigned int i = 0; i < nCubePositions; i++)
@@ -464,19 +450,10 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-        // --- Draw the light!!! ---
+        // --- Draw lights ---
         shaderUse(lightSourceShaderProgram);
 
-        // Set up the camera matrices we'll be using for everything using this
-        // shader.
-        //mat4 view;
-        //cameraGetViewMatrix(camera, view);
-
-        ////mat4 projection;
-        //glm_mat4_identity(projection);
-        //glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
-
-        // Send the matricies to the shaders
+        // Send the view and projection matricies to the light shader
         shaderSetMat4v(shaderProgram, "view", view);
         shaderSetMat4v(shaderProgram, "projection", projection);
 
@@ -498,6 +475,7 @@ int main()
         glBindVertexArray(0);
 
         /*
+        // Draw backpack
         mat4 backpackModel;
         glm_mat4_identity(backpackModel);
         vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
