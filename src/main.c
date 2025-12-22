@@ -342,15 +342,6 @@ int main()
     int specularCrate = loadTexture("textures/container2_specular.png");
     int emissionCrate = loadTexture("textures/matrix.jpg");
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, ambientCrate);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, specularCrate);
-
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, emissionCrate);
-
     // XXX: Need to declare it like this so that dirname can edit it later :/
     char backpackModelPath[] = "models/backpack/backpack.obj";
     Model* backpack = newModel(backpackModelPath);
@@ -386,6 +377,20 @@ int main()
         mat4 projection;
         glm_mat4_identity(projection);
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
+
+        // Send the matricies to the shaders
+        shaderSetMat4v(shaderProgram, "view", view);
+        shaderSetMat4v(shaderProgram, "projection", projection);
+
+        // Set the cubes' textures as active
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, ambientCrate);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, specularCrate);
+
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, emissionCrate);
 
         // Send the lighting information to the shader.
         //vec3 viewspaceLightPos;
@@ -438,9 +443,6 @@ int main()
         shaderSetInt(shaderProgram, "material.emission", 2);
         shaderSetFloat(shaderProgram, "material.shininess", 0.5f * 128.0f);
 
-        // Send the matricies to the shaders
-        shaderSetMat4v(shaderProgram, "view", view);
-        shaderSetMat4v(shaderProgram, "projection", projection);
 
         // DRAW THE FUCKING CUBE!
         glBindVertexArray(VAO);
@@ -468,11 +470,11 @@ int main()
         // Set up the camera matrices we'll be using for everything using this
         // shader.
         //mat4 view;
-        cameraGetViewMatrix(camera, view);
+        //cameraGetViewMatrix(camera, view);
 
-        //mat4 projection;
-        glm_mat4_identity(projection);
-        glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
+        ////mat4 projection;
+        //glm_mat4_identity(projection);
+        //glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
         // Send the matricies to the shaders
         shaderSetMat4v(shaderProgram, "view", view);
