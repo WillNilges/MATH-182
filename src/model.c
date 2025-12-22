@@ -42,7 +42,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
 
-    printf("Num textures: %zu\n", mesh->numTextures);
+    //printf("Num textures: %zu\n", mesh->numTextures);
     for (unsigned int i = 0; i < mesh->numTextures; i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // Activate texture unit
@@ -58,7 +58,8 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
 
             printf("setting float %s\n", shaderVarName);
-            shaderSetFloat(shader, shaderVarName, i);
+            //shaderSetFloat(shader, shaderVarName, i);
+            shaderSetInt(shader, "material.diffuse", i);
             diffuseNr++;
         }
         else if (strcmp(type, MODEL_TEXTURE_SPECULAR) == 0)
@@ -69,7 +70,8 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
 
             printf("setting float %s\n", shaderVarName);
-            shaderSetFloat(shader, shaderVarName, i);
+
+            shaderSetInt(shader, "material.specular", i);
             specularNr++;
         }
         glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);

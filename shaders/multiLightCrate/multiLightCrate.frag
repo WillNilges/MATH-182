@@ -54,10 +54,12 @@ uniform PointLight pointLights[NR_POINT_LIGHTS];
 #define NR_SPOT_LIGHTS 1
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
 
+//#define NR_MATERIALS 2 // There will probably be like 4 IDK
 uniform Material material;
 
 out vec4 FragColor;
 
+// FIXME: THIS SHIT ISN'T WORKING
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -173,18 +175,20 @@ void main()
     vec3 result = vec3(0.0);
 
     // phase 1: Directional lighting
-    //result += CalcDirLight(dirLight, norm, viewDir);
+    result += CalcDirLight(dirLight, norm, viewDir);
 
     // phase 2: Point lights
-    for (int i = 0; i < NR_POINT_LIGHTS; i++)
-    {
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
-    }
+    /*
+                    for (int i = 0; i < NR_POINT_LIGHTS; i++)
+                    {
+                        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+                    }
 
-    for (int i = 0; i < NR_SPOT_LIGHTS; i++)
-    {
-        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
-    }
+                    for (int i = 0; i < NR_SPOT_LIGHTS; i++)
+                    {
+                        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
+                    }
+                    */
 
     FragColor = vec4(result, 1.0);
 }
