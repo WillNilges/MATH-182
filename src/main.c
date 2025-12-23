@@ -8,7 +8,6 @@
 #include "cglm/mat4.h"
 #include "cglm/util.h"
 #include "light.h"
-#include "model.h"
 #include "shader.h"
 #include "camera.h"
 #include "texture.h"
