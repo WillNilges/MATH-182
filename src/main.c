@@ -144,6 +144,9 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // Enable Depth Buffer
+    glEnable(GL_DEPTH_TEST);
+
     // Mouse look
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPosCallback(window, mouse_callback);

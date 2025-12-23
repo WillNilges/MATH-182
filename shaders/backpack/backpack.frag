@@ -94,10 +94,10 @@ void main()
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(viewPos - FragPos);
 
-    vec3 result = vec3(1.0);
+    vec3 result = vec3(0.0);
 
     // phase 1: Directional lighting
-    //result += CalcDirLight(texture_diffuse1, dirLight, norm, viewDir);
+    result += CalcDirLight(texture_diffuse1, dirLight, norm, viewDir);
 
     FragColor = vec4(result, 1.0);
 }
