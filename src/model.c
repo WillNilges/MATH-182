@@ -98,16 +98,16 @@ void mesh_setup(Mesh* mesh)
 
     glBufferData(
         GL_ARRAY_BUFFER,
-        sizeof(Vertex),
-        mesh->vertices,
+        sizeof(Vertex) * mesh->numVertices,
+        &mesh->vertices[0],
         GL_STATIC_DRAW
     );
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->EBO);
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
-        sizeof(unsigned int),
-        mesh->indices,
+        sizeof(unsigned int) * mesh->numIndices,
+        &mesh->indices[0],
         GL_STATIC_DRAW
     );
 
@@ -144,6 +144,7 @@ Model* newModel(char* path)
 }
 
 // FIXME: WHAT THE FUCK
+/*
   char* chom_dirname(char* path) {
     static char dot[] = ".";
     if (!path) return dot;
@@ -155,6 +156,7 @@ Model* newModel(char* path)
     *last_slash = '\0';
     return path;
   }
+*/
 
 void model_loadModel(Model* model, char* path)
 {
