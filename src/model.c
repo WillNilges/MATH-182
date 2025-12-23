@@ -34,6 +34,8 @@ Mesh* newMesh(Vertex* vertices, size_t numVertices, unsigned int* indices, size_
     mesh->textures = textures;
     mesh->numTextures = numTextures;
 
+    mesh_setup(mesh);
+
     return mesh;
 }
 
@@ -57,7 +59,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
 
-            printf("setting int %s\n", shaderVarName);
+            //printf("setting int %s\n", shaderVarName);
             shaderSetInt(shader, shaderVarName, i);
             diffuseNr++;
         }
@@ -68,7 +70,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
 
-            printf("setting int %s\n", shaderVarName);
+            //printf("setting int %s\n", shaderVarName);
 
             shaderSetInt(shader, shaderVarName, i);
             specularNr++;
@@ -77,7 +79,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
     }
     glActiveTexture(GL_TEXTURE0);
 
-    printf("Indices: %zu\n", mesh->numIndices);
+    //printf("Indices: %zu\n", mesh->numIndices);
 
     // Draw mesh
     glBindVertexArray(mesh->VAO);
@@ -97,7 +99,7 @@ void mesh_setup(Mesh* mesh)
     glBufferData(
         GL_ARRAY_BUFFER,
         sizeof(Vertex),
-        &mesh->vertices[0],
+        mesh->vertices,
         GL_STATIC_DRAW
     );
 
@@ -105,21 +107,21 @@ void mesh_setup(Mesh* mesh)
     glBufferData(
         GL_ELEMENT_ARRAY_BUFFER,
         sizeof(unsigned int),
-        &mesh->indices[0],
+        mesh->indices,
         GL_STATIC_DRAW
     );
 
     // vertex positions
-    glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
 
     // vertex normals
-    glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+    glEnableVertexAttribArray(1);
 
     // vertex textrure coords
-    glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
 }
@@ -189,7 +191,7 @@ void model_processNode(Model* model, struct aiNode* node, const struct aiScene* 
     for(unsigned int i = 0; i < node->mNumMeshes; i++)
     {
         struct aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        model->meshes[model->numMeshes + i] = model_processMesh(model, mesh, scene);
+        model->meshes[model->numMeshes + i] = *model_processMesh(model, mesh, scene);
     }
 
     // Update the number of meshes we have
@@ -203,7 +205,7 @@ void model_processNode(Model* model, struct aiNode* node, const struct aiScene* 
     }
 }
 
-Mesh model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
+Mesh* model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene* scene)
 {
     Vertex* vertices;
     //size_t numVertices;
@@ -274,16 +276,18 @@ Mesh model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene*
         numTextures = numDiffuseMaps + numSpecularMaps;
     }
 
-    Mesh m = {
-        vertices: vertices,
-        numVertices: mesh->mNumVertices,
+    Mesh* m = newMesh(vertices, mesh->mNumVertices, indices, numIndices, textures, numTextures);
 
-        indices: indices,
-        numIndices: numIndices,
+    //Mesh m = {
+    //    vertices: vertices,
+    //    numVertices: mesh->mNumVertices,
 
-        textures: textures,
-        numTextures: numTextures,
-    };
+    //    indices: indices,
+    //    numIndices: numIndices,
+
+    //    textures: textures,
+    //    numTextures: numTextures,
+    //};
 
     return m;
 }
