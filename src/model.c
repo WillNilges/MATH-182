@@ -57,7 +57,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
 
-            printf("setting int %s\n", shaderVarName);
+            //printf("setting int %s\n", shaderVarName);
             shaderSetInt(shader, shaderVarName, i);
             diffuseNr++;
         }
@@ -68,7 +68,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
 
-            printf("setting int %s\n", shaderVarName);
+            //printf("setting int %s\n", shaderVarName);
 
             shaderSetInt(shader, shaderVarName, i);
             specularNr++;
@@ -110,16 +110,16 @@ void mesh_setup(Mesh* mesh)
     );
 
     // vertex positions
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
 
     // vertex normals
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
 
     // vertex textrure coords
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
 
     glBindVertexArray(0);
 }
@@ -216,8 +216,8 @@ Mesh* model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene
         if (mesh->mTextureCoords[0])
         {
             vec2s vec;
-            vertices[i].TexCoords.x = mesh->mTextureCoords[0]->x;
-            vertices[i].TexCoords.y = mesh->mTextureCoords[0]->y;
+            vertices[i].TexCoords.x = mesh->mTextureCoords[0][i].x;
+            vertices[i].TexCoords.y = mesh->mTextureCoords[0][i].y;
         }
         else 
         {

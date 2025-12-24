@@ -145,7 +145,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Flip images vertically when we load them
-    //stbi_set_flip_vertically_on_load(true);
+    stbi_set_flip_vertically_on_load(true);
 
     // Enable Depth Buffer
     glEnable(GL_DEPTH_TEST);

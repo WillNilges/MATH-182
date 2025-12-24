@@ -79,10 +79,10 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
                     TexCoords));
     vec3 diffuse = light.diffuse * diff * vec3(texture(texture_diffuse1,
                     TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(texture_specular1,
-                    TexCoords));
+    //vec3 specular = light.specular * spec * vec3(texture(texture_specular1,
+    //                TexCoords));
 
-    return (ambient + diffuse + specular);
+    return (ambient + diffuse); // + specular);
 }
 
 // TODO: Optimize this. We don't need to duplicate our calculations.
@@ -97,11 +97,13 @@ void main()
     vec3 result = vec3(0.0);
 
     // phase 1: Directional lighting
-    result += CalcDirLight(dirLight, norm, viewDir);
+    //result += CalcDirLight(dirLight, norm, viewDir);
     //result += CalcDirLight(texture_diffuse2, dirLight, norm, viewDir);
     //result += CalcDirLight(texture_diffuse3, dirLight, norm, viewDir);
     //result += CalcDirLight(texture_specular1, dirLight, norm, viewDir);
     //result += CalcDirLight(texture_specular2, dirLight, norm, viewDir);
 
+    result = vec3(texture(texture_diffuse1,
+                TexCoords));
     FragColor = vec4(result, 1.0);
 }
