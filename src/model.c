@@ -17,8 +17,6 @@
 #include "libgen.h"
 #include "texture.h"
 
-//const char MODEL_TEXTURE_DIFFUSE[] = "texture_diffuse";
-//const char MODEL_TEXTURE_SPECULAR[] = "texture_specular";
 const char MODEL_MATERIAL_DOT[] = "texture_%s%d";
 
 const char MODEL_TEXTURE_DIFFUSE[] = "diffuse";
@@ -70,7 +68,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
 
-            //printf("setting int %s\n", shaderVarName);
+            printf("setting int %s\n", shaderVarName);
 
             shaderSetInt(shader, shaderVarName, i);
             specularNr++;
@@ -142,21 +140,6 @@ Model* newModel(char* path)
 
     return model;
 }
-
-// FIXME: WHAT THE FUCK
-/*
-  char* chom_dirname(char* path) {
-    static char dot[] = ".";
-    if (!path) return dot;
-    char* last_slash = NULL;
-    for (char* p = path; *p; p++) {
-      if (*p == '/') last_slash = p;
-    }
-    if (!last_slash) return dot;
-    *last_slash = '\0';
-    return path;
-  }
-*/
 
 void model_loadModel(Model* model, char* path)
 {
@@ -267,10 +250,10 @@ Mesh* model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene
     {
         struct aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
         Texture* diffuseMaps = model_loadMaterialTextures(model, material, aiTextureType_DIFFUSE, MODEL_TEXTURE_DIFFUSE);
-        size_t numDiffuseMaps = aiGetMaterialTextureCount(material, aiTextureType_SPECULAR);
+        size_t numDiffuseMaps = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
 
         Texture* specularMaps = model_loadMaterialTextures(model, material, aiTextureType_SPECULAR, MODEL_TEXTURE_SPECULAR);
-        size_t numSpecularMaps = aiGetMaterialTextureCount(material, aiTextureType_DIFFUSE);
+        size_t numSpecularMaps = aiGetMaterialTextureCount(material, aiTextureType_SPECULAR);
 
         textures = malloc(sizeof(Texture) * (numDiffuseMaps + numSpecularMaps));
         memcpy(textures, diffuseMaps, sizeof(Texture) * numDiffuseMaps);
@@ -279,18 +262,6 @@ Mesh* model_processMesh(Model * model, struct aiMesh* mesh, const struct aiScene
     }
 
     Mesh* m = newMesh(vertices, mesh->mNumVertices, indices, numIndices, textures, numTextures);
-
-    //Mesh m = {
-    //    vertices: vertices,
-    //    numVertices: mesh->mNumVertices,
-
-    //    indices: indices,
-    //    numIndices: numIndices,
-
-    //    textures: textures,
-    //    numTextures: numTextures,
-    //};
-
     return m;
 }
 
@@ -304,30 +275,34 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
         aiGetMaterialTexture(mat, type, i, &str, NULL, NULL, NULL, NULL, NULL, NULL);
 
         // Get the texture path
-        size_t lenTexturePath = strlen(str.data) + strlen(model->directory) + 2;
+        size_t lenTexturePath = str.length + strlen(model->directory) + 2;
         char texturePath[lenTexturePath];
         snprintf(texturePath, lenTexturePath, "%s/%s", model->directory, str.data);
+
+        printf("Checking if we need to load texture %s\n", str.data);
 
         // Before doing the expensive step of loading the texture, check
         // if we've already loaded it into memory and use that copy if we can.
         bool skipLoading = false;
         for (unsigned int j = 0; j < model->numTexturesLoaded; j++)
         {
-            //printf("Checking %s and %s\n", model->texturesLoaded[j].path, str.data);
-            if (strcmp(model->texturesLoaded[j].path, str.data) == 0)
+            if (model->texturesLoaded[j].type == typeName && strcmp(model->texturesLoaded[j].path, str.data) == 0)
             {
-                textures[i] = model->texturesLoaded[j];
+                textures[i].id = model->texturesLoaded[j].id;
+                textures[i].type = model->texturesLoaded[j].type;
+                textures[i].path = model->texturesLoaded[j].path;
                 skipLoading = true;
+                printf("Not loading. %s = %s\n", model->texturesLoaded[j].path, str.data);
                 break;
             }
         }
-        //printf("Skip Loading: %d\n", skipLoading);
+
         if (skipLoading)
         {
             continue;
         }
 
-        printf("Texture path %s\n", str.data);
+        printf("We should load %s\n", str.data);
 
         // Set the texture
         textures[i].id = loadTexture(texturePath);

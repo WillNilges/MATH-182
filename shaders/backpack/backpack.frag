@@ -61,7 +61,7 @@ uniform sampler2D texture_specular2;
 
 out vec4 FragColor;
 
-vec3 CalcDirLight(sampler2D material, DirLight light, vec3 normal, vec3 viewDir)
+vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
 
@@ -75,11 +75,11 @@ vec3 CalcDirLight(sampler2D material, DirLight light, vec3 normal, vec3 viewDir)
             0.5 * 128.0); // TODO: pass this value through somehow
 
     // combine results
-    vec3 ambient = light.ambient * vec3(texture(material,
+    vec3 ambient = light.ambient * vec3(texture(texture_diffuse1,
                     TexCoords));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material,
+    vec3 diffuse = light.diffuse * diff * vec3(texture(texture_diffuse1,
                     TexCoords));
-    vec3 specular = light.specular * spec * vec3(texture(material,
+    vec3 specular = light.specular * spec * vec3(texture(texture_specular1,
                     TexCoords));
 
     return (ambient + diffuse + specular);
@@ -97,7 +97,11 @@ void main()
     vec3 result = vec3(0.0);
 
     // phase 1: Directional lighting
-    result += CalcDirLight(texture_diffuse1, dirLight, norm, viewDir);
+    result += CalcDirLight(dirLight, norm, viewDir);
+    //result += CalcDirLight(texture_diffuse2, dirLight, norm, viewDir);
+    //result += CalcDirLight(texture_diffuse3, dirLight, norm, viewDir);
+    //result += CalcDirLight(texture_specular1, dirLight, norm, viewDir);
+    //result += CalcDirLight(texture_specular2, dirLight, norm, viewDir);
 
     FragColor = vec4(result, 1.0);
 }
