@@ -57,7 +57,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
             snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
 
-            //printf("setting int %s\n", shaderVarName);
+            printf("setting int %s\n", shaderVarName);
             shaderSetInt(shader, shaderVarName, i);
             diffuseNr++;
         }
@@ -279,7 +279,7 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
         char texturePath[lenTexturePath];
         snprintf(texturePath, lenTexturePath, "%s/%s", model->directory, str.data);
 
-        printf("Checking if we need to load texture %s\n", str.data);
+        //printf("Checking if we need to load texture %s\n", str.data);
 
         // Before doing the expensive step of loading the texture, check
         // if we've already loaded it into memory and use that copy if we can.
@@ -292,7 +292,7 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
                 textures[i].type = model->texturesLoaded[j].type;
                 textures[i].path = model->texturesLoaded[j].path;
                 skipLoading = true;
-                printf("Not loading. %s = %s\n", model->texturesLoaded[j].path, str.data);
+                //printf("Not loading. %s = %s\n", model->texturesLoaded[j].path, str.data);
                 break;
             }
         }

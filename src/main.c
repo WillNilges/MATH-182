@@ -144,6 +144,9 @@ int main()
 
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+    // Flip images vertically when we load them
+    //stbi_set_flip_vertically_on_load(true);
+
     // Enable Depth Buffer
     glEnable(GL_DEPTH_TEST);
 
@@ -202,13 +205,15 @@ int main()
 
         // Set up the directional light
         vec3 lightDir = { -0.2f, -1.0f, -0.3f };
+        vec3 viewspaceLightDir;
+        glm_mat4_mulv3(view, lightDir, 1.0, viewspaceLightDir);
 
         // Lighting color information
         vec3 ambientColor = { 0.1f, 0.1f, 0.1f };
         vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
         vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
 
-        shaderSetVec3(backpackShader, "dirLight.direction", lightDir);
+        shaderSetVec3(backpackShader, "dirLight.direction", viewspaceLightDir);
         shaderSetVec3(backpackShader, "dirLight.ambient", ambientColor);
         shaderSetVec3(backpackShader, "dirLight.diffuse", diffuseColor);
         shaderSetVec3(backpackShader, "dirLight.specular", lightColor);
