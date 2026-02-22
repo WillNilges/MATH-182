@@ -15,6 +15,7 @@
 #include "cglm/types.h"
 //#include "libgen.h"
 #include "libgen.h"
+#include "shader.h"
 #include "texture.h"
 
 const char MODEL_MATERIAL_DOT[] = "texture_%s%d";
@@ -159,6 +160,27 @@ void model_draw(Model* model, Shader* shader)
     {
         mesh_draw(&model->meshes[i], shader);
     }
+}
+
+void model_drawWithOutline(Model* model, Shader* shader, Shader* outlineShader)
+{
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF); // Pass all fragments to stencil test
+    glStencilMask(0xFF); // Enable writing to stencil buffer
+    shaderUse(shader);
+    model_draw(model, shader);
+
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+    glDisable(GL_DEPTH_TEST);
+    shaderUse(outlineShader);
+    //model_draw(model, outlineShader);
+
+    glStencilMask(0xFF);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glEnable(GL_DEPTH_TEST);
+
 }
 
 void model_processNode(Model* model, struct aiNode* node, const struct aiScene* scene)

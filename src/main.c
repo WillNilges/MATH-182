@@ -165,8 +165,18 @@ int main()
         "shaders/backpack/backpack.vert",
         "shaders/backpack/backpack.frag"
     );
-
     if (backpackShader == NULL) {
+        printf("I'm outta here!\n");
+        glfwTerminate();
+        return -1;
+    }
+
+    // Set up a shader for our backpack
+    Shader* outlineShader = newShader(
+        "shaders/outlineHighlight/shader.vert",
+        "shaders/outlineHighlight/shader.frag"
+    );
+    if (outlineShader == NULL) {
         printf("I'm outta here!\n");
         glfwTerminate();
         return -1;
@@ -188,17 +198,12 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Set backpack shader as active
-        shaderUse(backpackShader);
-
         mat4 view;
         cameraGetViewMatrix(camera, view);
-        shaderSetMat4v(backpackShader, "view", view);
 
         mat4 projection;
         glm_mat4_identity(projection);
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
-        shaderSetMat4v(backpackShader, "projection", projection);
 
         vec3 zero = { 0.0f, 0.0f, 0.0f };
         vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
@@ -213,18 +218,42 @@ int main()
         vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
         vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
 
-        shaderSetVec3(backpackShader, "dirLight.direction", viewspaceLightDir);
-        shaderSetVec3(backpackShader, "dirLight.ambient", ambientColor);
-        shaderSetVec3(backpackShader, "dirLight.diffuse", diffuseColor);
-        shaderSetVec3(backpackShader, "dirLight.specular", lightColor);
-
-        // Draw backpack
         mat4 backpackModel;
         glm_mat4_identity(backpackModel);
         vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
         glm_translate(backpackModel, backpackPosition);
+
+        shaderUse(backpackShader);
+        shaderSetMat4v(backpackShader, "view", view);
+        shaderSetMat4v(backpackShader, "projection", projection);
+        shaderSetVec3(backpackShader, "dirLight.direction", viewspaceLightDir);
+        shaderSetVec3(backpackShader, "dirLight.ambient", ambientColor);
+        shaderSetVec3(backpackShader, "dirLight.diffuse", diffuseColor);
+        shaderSetVec3(backpackShader, "dirLight.specular", lightColor);
         shaderSetMat4v(backpackShader, "model", backpackModel);
-        model_draw(backpack, backpackShader);
+
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF); // Pass all fragments to stencil test
+        glStencilMask(0xFF); // Enable writing to stencil buffer
+        //model_draw(backpack, backpackShader);
+
+        shaderUse(outlineShader);
+        shaderSetMat4v(outlineShader, "view", view);
+        shaderSetMat4v(outlineShader, "projection", projection);
+        shaderSetMat4v(outlineShader, "model", backpackModel);
+
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        model_draw(backpack, outlineShader);
+
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glEnable(GL_DEPTH_TEST);
+
+        // Draw backpack
+        //model_drawWithOutline(backpack, backpackShader, outlineShader);
 
         // Swap buffers!
         glfwSwapBuffers(window);
