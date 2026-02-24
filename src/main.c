@@ -197,7 +197,7 @@ int main()
 
         // Clear the screen with a color
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         mat4 view;
         cameraGetViewMatrix(camera, view);
@@ -246,9 +246,20 @@ int main()
         glStencilMask(0x00);
         glDisable(GL_DEPTH_TEST);
         shaderUse(outlineShader);
+        shaderSetMat4v(outlineShader, "view", view);
+        shaderSetMat4v(outlineShader, "projection", projection);
         float scale = 1.1f;
+        vec3 sc = { scale, scale, scale };
+        glm_scale(backpackModel, sc);
+        shaderSetMat4v(outlineShader, "model", backpackModel);
         // Oh wait, I can't scale it here, can I? Maybe I can make a function
         // or property that draws it scaled.
+        //model_scale(backpack, scale);
+        model_draw(backpack, outlineShader);
+        glBindVertexArray(0);
+        glStencilMask(0xFF);
+        glStencilFunc(GL_ALWAYS, 0, 0xFF);
+        glEnable(GL_DEPTH_TEST);
 
         /*
         shaderUse(outlineShader);

@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "assimp/types.h"
+#include "cglm/mat3.h"
 #include "cglm/types.h"
 //#include "libgen.h"
 #include "libgen.h"
@@ -160,6 +161,21 @@ void model_draw(Model* model, Shader* shader)
     {
         mesh_draw(&model->meshes[i], shader);
     }
+}
+
+void model_scale(Model *model, float scale)
+{
+    // for each vertex, scale by the scale
+    for (int i = 0; i < model->numMeshes; i++)
+    {
+        for (int j = 0; j < model->meshes[i].numVertices; j++)
+        {
+            model->meshes[i].vertices[j].Position.x *= scale;
+            model->meshes[i].vertices[j].Position.y *= scale;
+            model->meshes[i].vertices[j].Position.z *= scale;
+        }
+    }
+    //glm_mat3_scale(model->meshes->vertices->Position, scale);
 }
 
 void model_drawWithOutline(Model* model, Shader* shader, Shader* outlineShader)
