@@ -5,6 +5,7 @@
 #include <math.h>
 #include "cglm/affine.h"
 #include "cglm/cglm.h"
+#include "cglm/mat3.h"
 #include "cglm/mat4.h"
 #include "cglm/util.h"
 #include "light.h"
@@ -234,14 +235,31 @@ int main()
 
         glEnable(GL_STENCIL_TEST);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+        // 1st pass, draw the object, writing to stencil buffer
         glStencilFunc(GL_ALWAYS, 1, 0xFF); // Pass all fragments to stencil test
         glStencilMask(0xFF); // Enable writing to stencil buffer
-        //model_draw(backpack, backpackShader);
+        model_draw(backpack, backpackShader);
 
+        // 2nd pass, draw outline.
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDisable(GL_DEPTH_TEST);
+        shaderUse(outlineShader);
+        float scale = 1.1f;
+        // Oh wait, I can't scale it here, can I? Maybe I can make a function
+        // or property that draws it scaled.
+
+        /*
         shaderUse(outlineShader);
         shaderSetMat4v(outlineShader, "view", view);
         shaderSetMat4v(outlineShader, "projection", projection);
-        shaderSetMat4v(outlineShader, "model", backpackModel);
+
+        mat4 scaleModel;
+        vec3 scalePos = { -1.0f, 0.0f, -1.0f };
+        glm_translate(backpackModel, scalePos);
+        glm_mat4_scale(scaleModel, 1.1f);
+        shaderSetMat4v(outlineShader, "model", scaleModel);
 
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
         glStencilMask(0x00);
@@ -251,6 +269,7 @@ int main()
         glStencilMask(0xFF);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glEnable(GL_DEPTH_TEST);
+        */
 
         // Draw backpack
         //model_drawWithOutline(backpack, backpackShader, outlineShader);
