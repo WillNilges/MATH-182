@@ -162,11 +162,11 @@ int main()
     camera = newCameraWithDefaults();
 
     // Set up a shader for our backpack
-    Shader* backpackShader = newShader(
-        "shaders/backpack/backpack.vert",
-        "shaders/backpack/backpack.frag"
+    Shader* mainShader = newShader(
+        "shaders/main/shader.vert",
+        "shaders/main/shader.frag"
     );
-    if (backpackShader == NULL) {
+    if (mainShader == NULL) {
         printf("I'm outta here!\n");
         glfwTerminate();
         return -1;
@@ -227,16 +227,16 @@ int main()
         vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
         glm_translate(backpackModel, backpackPosition);
 
-        shaderUse(backpackShader);
-        shaderSetMat4v(backpackShader, "view", view);
-        shaderSetMat4v(backpackShader, "projection", projection);
-        shaderSetVec3(backpackShader, "dirLight.direction", viewspaceLightDir);
-        shaderSetVec3(backpackShader, "dirLight.ambient", ambientColor);
-        shaderSetVec3(backpackShader, "dirLight.diffuse", diffuseColor);
-        shaderSetVec3(backpackShader, "dirLight.specular", lightColor);
-        shaderSetMat4v(backpackShader, "model", backpackModel);
+        shaderUse(mainShader);
+        shaderSetMat4v(mainShader, "view", view);
+        shaderSetMat4v(mainShader, "projection", projection);
+        shaderSetVec3(mainShader, "dirLight.direction", viewspaceLightDir);
+        shaderSetVec3(mainShader, "dirLight.ambient", ambientColor);
+        shaderSetVec3(mainShader, "dirLight.diffuse", diffuseColor);
+        shaderSetVec3(mainShader, "dirLight.specular", lightColor);
+        shaderSetMat4v(mainShader, "model", backpackModel);
 
-        model_draw(floor, backpackShader);
+        model_draw(floor, mainShader);
 
         glEnable(GL_STENCIL_TEST);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -244,7 +244,7 @@ int main()
         // 1st pass, draw the object, writing to stencil buffer
         glStencilFunc(GL_ALWAYS, 1, 0xFF); // Pass all fragments to stencil test
         glStencilMask(0xFF); // Enable writing to stencil buffer
-        model_draw(backpack, backpackShader);
+        model_draw(backpack, mainShader);
 
         // 2nd pass, draw outline.
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);

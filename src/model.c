@@ -44,6 +44,11 @@ void mesh_draw(Mesh* mesh, Shader* shader)
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
 
+    // OpenGL can bind up to 16 textures
+    const int lenTexturesUsed = 16;
+    char texturesUsed[lenTexturesUsed][20];
+    int texturesUsedIdx = 0;
+
     //printf("Num textures: %zu\n", mesh->numTextures);
     for (unsigned int i = 0; i < mesh->numTextures; i++)
     {
@@ -56,23 +61,20 @@ void mesh_draw(Mesh* mesh, Shader* shader)
         {
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", diffuseNr);
-            char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
-            snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, diffuseNr);
-
-            //printf("setting int %s\n", shaderVarName);
-            shaderSetInt(shader, shaderVarName, i);
+            // FIXME: This could segfault if I somehow load more than 16 textures
+            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type, diffuseNr);
+            shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
+            texturesUsedIdx++;
             diffuseNr++;
         }
         else if (strcmp(type, MODEL_TEXTURE_SPECULAR) == 0)
         {
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", specularNr);
-            char shaderVarName[lenType + lenNumber + strlen(MODEL_MATERIAL_DOT)];
-            snprintf(shaderVarName, sizeof(shaderVarName), MODEL_MATERIAL_DOT, type, specularNr);
-
-            //printf("setting int %s\n", shaderVarName);
-
-            shaderSetInt(shader, shaderVarName, i);
+            // FIXME: This could segfault if I somehow load more than 16 textures
+            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type, specularNr);
+            shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
+            texturesUsedIdx++;
             specularNr++;
         }
         glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
@@ -87,8 +89,10 @@ void mesh_draw(Mesh* mesh, Shader* shader)
     glBindVertexArray(0);
 
     // Clean up the uniforms
-    shaderSetInt(shader, "texture_diffuse1", 0);
-    shaderSetInt(shader, "texture_specular1", 0);
+    for (int i = 0; i < texturesUsedIdx; i++)
+    {
+        shaderSetInt(shader, texturesUsed[i], 0);
+    }
 }
 
 void mesh_setup(Mesh* mesh)
