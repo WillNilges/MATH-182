@@ -252,38 +252,11 @@ int main()
         vec3 sc = { scale, scale, scale };
         glm_scale(backpackModel, sc);
         shaderSetMat4v(outlineShader, "model", backpackModel);
-        // Oh wait, I can't scale it here, can I? Maybe I can make a function
-        // or property that draws it scaled.
-        //model_scale(backpack, scale);
         model_draw(backpack, outlineShader);
         glBindVertexArray(0);
         glStencilMask(0xFF);
         glStencilFunc(GL_ALWAYS, 0, 0xFF);
         glEnable(GL_DEPTH_TEST);
-
-        /*
-        shaderUse(outlineShader);
-        shaderSetMat4v(outlineShader, "view", view);
-        shaderSetMat4v(outlineShader, "projection", projection);
-
-        mat4 scaleModel;
-        vec3 scalePos = { -1.0f, 0.0f, -1.0f };
-        glm_translate(backpackModel, scalePos);
-        glm_mat4_scale(scaleModel, 1.1f);
-        shaderSetMat4v(outlineShader, "model", scaleModel);
-
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
-        model_draw(backpack, outlineShader);
-
-        glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glEnable(GL_DEPTH_TEST);
-        */
-
-        // Draw backpack
-        //model_drawWithOutline(backpack, backpackShader, outlineShader);
 
         // Swap buffers!
         glfwSwapBuffers(window);
