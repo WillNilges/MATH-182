@@ -85,6 +85,10 @@ void mesh_draw(Mesh* mesh, Shader* shader)
     glBindVertexArray(mesh->VAO);
     glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    // Clean up the uniforms
+    shaderSetInt(shader, "texture_diffuse1", 0);
+    shaderSetInt(shader, "texture_specular1", 0);
 }
 
 void mesh_setup(Mesh* mesh)

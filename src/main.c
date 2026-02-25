@@ -187,6 +187,9 @@ int main()
     char backpackModelPath[] = "models/backpack/backpack.obj";
     Model* backpack = newModel(backpackModelPath);
 
+    char floorModelPath[] = "models/plane/plane.obj";
+    Model* floor = newModel(floorModelPath);
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -232,6 +235,8 @@ int main()
         shaderSetVec3(backpackShader, "dirLight.diffuse", diffuseColor);
         shaderSetVec3(backpackShader, "dirLight.specular", lightColor);
         shaderSetMat4v(backpackShader, "model", backpackModel);
+
+        model_draw(floor, backpackShader);
 
         glEnable(GL_STENCIL_TEST);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
