@@ -163,8 +163,8 @@ int main()
 
     // Set up a shader for our backpack
     Shader* mainShader = newShader(
-        "shaders/main/shader.vert",
-        "shaders/main/shader.frag"
+        "shaders/multiLight/shader.vert",
+        "shaders/multiLight/shader.frag"
     );
     if (mainShader == NULL) {
         printf("I'm outta here!\n");
