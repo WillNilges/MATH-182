@@ -29,7 +29,9 @@ Entity* newEntity(char* model_path, char* vert_shader_path, char* frag_shader_pa
 
 // TODO: get view and projection
 void entity_draw(Entity* entity) {
+
   shaderUse(entity->shader);
+  /*
   shaderSetMat4v(entity->shader, "view", view);
   shaderSetMat4v(entity->shader, "projection", projection);
   shaderSetVec3(entity->shader, "dirLight.direction", dirLight.direction);
@@ -37,6 +39,7 @@ void entity_draw(Entity* entity) {
   shaderSetVec3(entity->shader, "dirLight.diffuse", dirLight.diffuse);
   shaderSetVec3(entity->shader, "dirLight.specular", dirLight.specular);
   shaderSetMat4v(entity->shader, "model", entity->transform);
+  */
 
   model_draw(entity->model, entity->shader);
  
