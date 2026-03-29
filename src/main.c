@@ -157,6 +157,8 @@ int main()
     // Initialize the camera
     camera = newCameraWithDefaults();
 
+    /* Scene Object?*/
+
     // Set up a shader for our backpack
     Shader* mainShader = newShader(
         "shaders/main/shader.vert",
@@ -169,6 +171,7 @@ int main()
     }
 
     Entity* backpack = newEntity("models/backpack/backpack.obj", mainShader);
+    Entity* floor = newEntity("models/plane/plane.obj", mainShader);
 
     // Set up the directional light
     DirLight dirLight;
@@ -178,6 +181,8 @@ int main()
     dirLight_setAmbient(&dirLight, 0.1f, 0.1f, 0.1f);
     dirLight_setDiffuse(&dirLight, 0.5f, 0.5f, 0.5f);
     dirLight_setSpecular(&dirLight, 1.0f, 1.0f, 1.0f);
+
+    /* /Scene Object? */
 
     while(!glfwWindowShouldClose(window))
     {
@@ -194,6 +199,8 @@ int main()
         cameraUpdateMatricies(camera, windowWidth, windowHeight);
         
         entity_draw(backpack, camera, &dirLight);
+        entity_draw(floor, camera, &dirLight);
+
 
         glfwSwapBuffers(window); // Swap buffers!
         glfwPollEvents(); // Read inputs!

@@ -19,7 +19,6 @@ Entity* newEntity(char* model_path, Shader* shader) {
     return entity;
 }
 
-// TODO: get view and projection
 void entity_draw(Entity* entity, Camera* camera, DirLight* dirLight) {
   // Activate this entity's shader
   shaderUse(entity->shader);
