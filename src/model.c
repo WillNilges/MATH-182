@@ -12,9 +12,6 @@
 #include <string.h>
 
 #include "assimp/types.h"
-#include "cglm/mat3.h"
-#include "cglm/types.h"
-//#include "libgen.h"
 #include "libgen.h"
 #include "shader.h"
 #include "texture.h"
@@ -62,6 +59,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", diffuseNr);
             // FIXME: This could segfault if I somehow load more than 16 textures
+            // FIXME: Sike my main shader actually only uses one material right now.
             snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type);
             shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
             texturesUsedIdx++;
@@ -72,6 +70,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", specularNr);
             // FIXME: This could segfault if I somehow load more than 16 textures
+            // FIXME: Sike my main shader actually only uses one material right now.
             snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type);
             shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
             texturesUsedIdx++;
@@ -123,7 +122,7 @@ void mesh_setup(Mesh* mesh)
 
     // vertex positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) 0);
 
     // vertex normals
     glEnableVertexAttribArray(1);

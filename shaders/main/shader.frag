@@ -69,7 +69,7 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     // specular shading
     vec3 reflectDir = reflect(-lightDir, normal);
 
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess); // TODO: pass this through in the 
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess); 
 
     // combine results
     vec3 ambient = light.ambient * vec3(texture(material.diffuse,
