@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "cglm/mat4.h"
 #include "cglm/util.h"
+#include "entity.h"
 #include "light.h"
 #include "model.h"
 #include "shader.h"
@@ -174,7 +175,15 @@ int main()
     char floorModelPath[] = "models/plane/plane.obj";
     Model* floor = newModel(floorModelPath);
 
-    
+
+    // Set up the directional light
+    DirLight dirLight;
+    dirLight_setDirection(&dirLight, -0.2f, -1.0f, -0.3f);
+
+    // Lighting color information
+    dirLight_setAmbient(&dirLight, 0.1f, 0.1f, 0.1f);
+    dirLight_setDiffuse(&dirLight, 0.5f, 0.5f, 0.5f);
+    dirLight_setSpecular(&dirLight, 1.0f, 1.0f, 1.0f);
 
     while(!glfwWindowShouldClose(window))
     {
@@ -190,16 +199,11 @@ int main()
 
         cameraUpdateMatricies(camera, windowWidth, windowHeight);
 
-        // Set up the directional light
-        DirLight dirLight;
-        dirLight_setDirection(&dirLight, -0.2f, -1.0f, -0.3f);
-        vec3 viewspaceLightDir;
-        glm_mat4_mulv3(camera->view, dirLight.direction.raw, 1.0, viewspaceLightDir);
 
-        // Lighting color information
-        dirLight_setAmbient(&dirLight, 0.1f, 0.1f, 0.1f);
-        dirLight_setDiffuse(&dirLight, 0.5f, 0.5f, 0.5f);
-        dirLight_setSpecular(&dirLight, 1.0f, 1.0f, 1.0f);
+        /* Light Processing */
+
+
+        /* /Light Processing */
 
         mat4 backpackModel;
         glm_mat4_identity(backpackModel);
@@ -218,6 +222,8 @@ int main()
         // Draw models
         model_draw(floor, mainShader);
         model_draw(backpack, mainShader);
+
+        
 
         glfwSwapBuffers(window); // Swap buffers!
         glfwPollEvents(); // Read inputs!

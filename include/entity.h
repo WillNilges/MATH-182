@@ -24,7 +24,7 @@ extern DirLight dirLight;
 typedef struct {
   Model* model;
   Shader* shader;
-  mat4 transform;
+  vec3s position;
 } Entity;
 
 Entity* newEntity(char* model_path, Shader* shader);
