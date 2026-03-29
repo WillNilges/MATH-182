@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "cglm/mat4.h"
 #include "cglm/util.h"
+#include "light.h"
 #include "model.h"
 #include "shader.h"
 #include "camera.h"
@@ -196,14 +197,15 @@ int main()
         vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
 
         // Set up the directional light
-        vec3 lightDir = { -0.2f, -1.0f, -0.3f };
+        DirLight dirLight;
+        dirLight_setDirection(&dirLight, -0.2f, -1.0f, -0.3f);
         vec3 viewspaceLightDir;
-        glm_mat4_mulv3(view, lightDir, 1.0, viewspaceLightDir);
+        glm_mat4_mulv3(view, dirLight.direction.raw, 1.0, viewspaceLightDir);
 
         // Lighting color information
-        vec3 ambientColor = { 0.1f, 0.1f, 0.1f };
-        vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
-        vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
+        dirLight_setAmbient(&dirLight, 0.1f, 0.1f, 0.1f);
+        dirLight_setDiffuse(&dirLight, 0.5f, 0.5f, 0.5f);
+        dirLight_setSpecular(&dirLight, 1.0f, 1.0f, 1.0f);
 
         mat4 backpackModel;
         glm_mat4_identity(backpackModel);
@@ -214,9 +216,9 @@ int main()
         shaderSetMat4v(mainShader, "view", view);
         shaderSetMat4v(mainShader, "projection", projection);
         shaderSetVec3(mainShader, "dirLight.direction", viewspaceLightDir);
-        shaderSetVec3(mainShader, "dirLight.ambient", ambientColor);
-        shaderSetVec3(mainShader, "dirLight.diffuse", diffuseColor);
-        shaderSetVec3(mainShader, "dirLight.specular", lightColor);
+        shaderSetVec3(mainShader, "dirLight.ambient", dirLight.ambient.raw);
+        shaderSetVec3(mainShader, "dirLight.diffuse", dirLight.diffuse.raw);
+        shaderSetVec3(mainShader, "dirLight.specular", dirLight.specular.raw);
         shaderSetMat4v(mainShader, "model", backpackModel);
 
         // Draw models
