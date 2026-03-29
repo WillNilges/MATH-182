@@ -50,6 +50,23 @@ void cameraGetViewMatrix(Camera* camera, mat4 view)
     glm_lookat(camera->pos, center, camera->up, view);
 }
 
+void cameraUpdateViewMatrix(Camera* camera)
+{
+    cameraGetViewMatrix(camera, camera->view);
+}
+
+void cameraUpdateProjectionMatrix(Camera *camera, int windowWidth, int windowHeight)
+{
+    glm_mat4_identity(camera->projection);
+    glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, camera->projection);
+}
+
+void cameraUpdateMatricies(Camera *camera, int windowWidth, int windowHeight)
+{
+    cameraUpdateViewMatrix(camera);
+    cameraUpdateProjectionMatrix(camera, windowWidth, windowHeight);
+}
+
 void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float deltaTime)
 {
     vec3 cameraSpeedXCameraFront;

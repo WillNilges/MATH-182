@@ -174,6 +174,8 @@ int main()
     char floorModelPath[] = "models/plane/plane.obj";
     Model* floor = newModel(floorModelPath);
 
+    
+
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
@@ -186,21 +188,13 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        mat4 view;
-        cameraGetViewMatrix(camera, view);
-
-        mat4 projection;
-        glm_mat4_identity(projection);
-        glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
-
-        vec3 zero = { 0.0f, 0.0f, 0.0f };
-        vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
+        cameraUpdateMatricies(camera, windowWidth, windowHeight);
 
         // Set up the directional light
         DirLight dirLight;
         dirLight_setDirection(&dirLight, -0.2f, -1.0f, -0.3f);
         vec3 viewspaceLightDir;
-        glm_mat4_mulv3(view, dirLight.direction.raw, 1.0, viewspaceLightDir);
+        glm_mat4_mulv3(camera->view, dirLight.direction.raw, 1.0, viewspaceLightDir);
 
         // Lighting color information
         dirLight_setAmbient(&dirLight, 0.1f, 0.1f, 0.1f);
@@ -213,8 +207,8 @@ int main()
         glm_translate(backpackModel, backpackPosition);
 
         shaderUse(mainShader);
-        shaderSetMat4v(mainShader, "view", view);
-        shaderSetMat4v(mainShader, "projection", projection);
+        shaderSetMat4v(mainShader, "view", camera->view);
+        shaderSetMat4v(mainShader, "projection", camera->projection);
         shaderSetVec3(mainShader, "dirLight.direction", viewspaceLightDir);
         shaderSetVec3(mainShader, "dirLight.ambient", dirLight.ambient.raw);
         shaderSetVec3(mainShader, "dirLight.diffuse", dirLight.diffuse.raw);

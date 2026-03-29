@@ -10,6 +10,7 @@
 #ifndef ENTITY_H
 #define ENTITY_H
 //#include "cglm/types.h"
+#include "camera.h"
 #include "light.h"
 #include "model.h"
 
@@ -26,7 +27,7 @@ typedef struct {
   mat4 transform;
 } Entity;
 
-Entity* newEntity(char* model_path, char* vert_shader_path, char* frag_shader_path);
-void entity_draw(Entity* entity);
+Entity* newEntity(char* model_path, Shader* shader);
+void entity_draw(Entity* entity, Camera* camera, DirLight* dirLight);
 
 #endif

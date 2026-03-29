@@ -333,7 +333,7 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
             continue;
         }
 
-        printf("We should load %s\n", str.data);
+        printf("Loading %s\n", str.data);
 
         // Set the texture
         textures[i].id = loadTexture(texturePath);
