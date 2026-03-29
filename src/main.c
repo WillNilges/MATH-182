@@ -7,6 +7,7 @@
 #include "entity.h"
 #include "light.h"
 #include "model.h"
+#include "scene.h"
 #include "shader.h"
 #include "camera.h"
 #include "stb_image.h"
@@ -182,6 +183,12 @@ int main()
     dirLight_setDiffuse(&dirLight, 0.5f, 0.5f, 0.5f);
     dirLight_setSpecular(&dirLight, 1.0f, 1.0f, 1.0f);
 
+    Scene* scene = newScene();
+    scene_registerDirLight(scene, &dirLight);
+    scene_registerShader(scene, mainShader);
+    scene_registerEntity(scene, backpack);
+    scene_registerEntity(scene, floor);
+
     /* /Scene Object? */
 
     while(!glfwWindowShouldClose(window))
@@ -198,9 +205,7 @@ int main()
 
         cameraUpdateMatricies(camera, windowWidth, windowHeight);
         
-        entity_draw(backpack, camera, &dirLight);
-        entity_draw(floor, camera, &dirLight);
-
+        scene_draw(scene, camera);
 
         glfwSwapBuffers(window); // Swap buffers!
         glfwPollEvents(); // Read inputs!

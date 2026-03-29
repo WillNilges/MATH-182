@@ -19,7 +19,7 @@ Entity* newEntity(char* model_path, Shader* shader) {
     return entity;
 }
 
-void entity_draw(Entity* entity, Camera* camera, DirLight* dirLight) {
+void entity_draw(Entity* entity, Camera* camera) {
   // Activate this entity's shader
   shaderUse(entity->shader);
   
@@ -27,24 +27,7 @@ void entity_draw(Entity* entity, Camera* camera, DirLight* dirLight) {
   mat4 model;
   glm_mat4_identity(model);
   glm_translate(model, entity->position.raw);
-  
-  // Process lighting information using provided camera
-  vec3 viewspaceLightDir;
-  glm_mat4_mulv3(camera->view, dirLight->direction.raw, 1.0, viewspaceLightDir);
 
-  shaderUse(entity->shader);
-
-  // Camera stuff
-  shaderSetMat4v(entity->shader, "view", camera->view);
-  shaderSetMat4v(entity->shader, "projection", camera->projection);
-
-  // Dir light
-  shaderSetVec3(entity->shader, "dirLight.direction", viewspaceLightDir);
-  shaderSetVec3(entity->shader, "dirLight.ambient", dirLight->ambient.raw);
-  shaderSetVec3(entity->shader, "dirLight.diffuse", dirLight->diffuse.raw);
-  shaderSetVec3(entity->shader, "dirLight.specular", dirLight->specular.raw);
-
-  
   shaderSetMat4v(entity->shader, "model", model);
 
   model_draw(entity->model, entity->shader);

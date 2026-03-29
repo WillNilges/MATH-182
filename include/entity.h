@@ -28,6 +28,6 @@ typedef struct {
 } Entity;
 
 Entity* newEntity(char* model_path, Shader* shader);
-void entity_draw(Entity* entity, Camera* camera, DirLight* dirLight);
+void entity_draw(Entity* entity, Camera* camera);
 
 #endif

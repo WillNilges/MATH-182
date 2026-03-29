@@ -91,9 +91,16 @@ void scene_draw(Scene* scene, Camera* camera)
     shaderSetVec3(s, "dirLight.diffuse", scene->lighting->dirLight->diffuse.raw);
     shaderSetVec3(s, "dirLight.specular", scene->lighting->dirLight->specular.raw);
 
+    // TODO: Set up other lights
+    // XXX: Would it be nice to pass the lights into some kind of generic function per shader?
+
     for (int j = 0; j < scene->lenEntities; j++)
     {
-      //entity_draw(scene->entities[i], camera);
+      Entity* e = &(scene->entities[j]);
+      if (e->shader->ID == s->ID)
+      {
+        entity_draw(e, camera);
+      }
     }
   }
 }
