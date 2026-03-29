@@ -168,13 +168,7 @@ int main()
         return -1;
     }
 
-    // XXX: Need to declare it like this so that dirname can edit it later :/
-    char backpackModelPath[] = "models/backpack/backpack.obj";
-    Model* backpack = newModel(backpackModelPath);
-
-    char floorModelPath[] = "models/plane/plane.obj";
-    Model* floor = newModel(floorModelPath);
-
+    Entity* backpack = newEntity("models/backpack/backpack.obj", mainShader);
 
     // Set up the directional light
     DirLight dirLight;
@@ -198,32 +192,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         cameraUpdateMatricies(camera, windowWidth, windowHeight);
-
-
-        /* Light Processing */
-
-
-        /* /Light Processing */
-
-        mat4 backpackModel;
-        glm_mat4_identity(backpackModel);
-        vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
-        glm_translate(backpackModel, backpackPosition);
-
-        shaderUse(mainShader);
-        shaderSetMat4v(mainShader, "view", camera->view);
-        shaderSetMat4v(mainShader, "projection", camera->projection);
-        shaderSetVec3(mainShader, "dirLight.direction", viewspaceLightDir);
-        shaderSetVec3(mainShader, "dirLight.ambient", dirLight.ambient.raw);
-        shaderSetVec3(mainShader, "dirLight.diffuse", dirLight.diffuse.raw);
-        shaderSetVec3(mainShader, "dirLight.specular", dirLight.specular.raw);
-        shaderSetMat4v(mainShader, "model", backpackModel);
-
-        // Draw models
-        model_draw(floor, mainShader);
-        model_draw(backpack, mainShader);
-
         
+        entity_draw(backpack, camera, &dirLight);
 
         glfwSwapBuffers(window); // Swap buffers!
         glfwPollEvents(); // Read inputs!
