@@ -19,7 +19,7 @@
 #include "shader.h"
 #include "texture.h"
 
-const char MODEL_MATERIAL_DOT[] = "texture_%s%d";
+const char MODEL_MATERIAL_DOT[] = "material.%s";
 
 const char MODEL_TEXTURE_DIFFUSE[] = "diffuse";
 const char MODEL_TEXTURE_SPECULAR[] = "specular";
@@ -46,7 +46,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
 
     // OpenGL can bind up to 16 textures
     const int lenTexturesUsed = 16;
-    char texturesUsed[lenTexturesUsed][20];
+    char texturesUsed[lenTexturesUsed][20]; // each entry will be max 19 + sentinel chars long
     int texturesUsedIdx = 0;
 
     //printf("Num textures: %zu\n", mesh->numTextures);
@@ -62,7 +62,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", diffuseNr);
             // FIXME: This could segfault if I somehow load more than 16 textures
-            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type, diffuseNr);
+            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type);
             shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
             texturesUsedIdx++;
             diffuseNr++;
@@ -72,11 +72,13 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", specularNr);
             // FIXME: This could segfault if I somehow load more than 16 textures
-            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type, specularNr);
+            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type);
             shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
             texturesUsedIdx++;
             specularNr++;
         }
+        // TODO: Control shininess value from entity?
+        shaderSetFloat(shader, "material.shininess", 64.0);
         glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
