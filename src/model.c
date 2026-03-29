@@ -159,7 +159,8 @@ void model_loadModel(Model* model, char* path)
         printf("ERROR::ASSIMP::%s\n", aiGetErrorString());
         return;
     }
-    model->directory = dirname(path);
+    model->directory = dirname(strdup(path)); // FIXME: Shit's segfaulting
+    printf("%s loaded.\n", model->directory);
     model_processNode(model, scene->mRootNode, scene);
 }
 

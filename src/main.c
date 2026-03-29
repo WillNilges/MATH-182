@@ -2,18 +2,20 @@
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <math.h>
-#include "cglm/affine.h"
-#include "cglm/cglm.h"
-#include "cglm/mat3.h"
 #include "cglm/mat4.h"
 #include "cglm/util.h"
+#include "entity.h"
 #include "light.h"
 #include "model.h"
 #include "shader.h"
 #include "camera.h"
-#include "texture.h"
 #include "stb_image.h"
+
+// TODO: Make global camera object thingy
+mat4 view;
+mat4 projection;
+
+DirLight dirLight;
 
 // Epic face opacity
 float visibility = 0.2f;
@@ -161,6 +163,7 @@ int main()
     // Initialize the camera
     camera = newCameraWithDefaults();
 
+    /*
     // Set up a shader for our backpack
     Shader* mainShader = newShader(
         "shaders/main/shader.vert",
@@ -178,6 +181,10 @@ int main()
 
     char floorModelPath[] = "models/plane/plane.obj";
     Model* floor = newModel(floorModelPath);
+    */
+
+    //Entity* backpack = newEntity("models/backpack/backpack.obj", "shaders/main/shader.vert", "shaders/main/shader.frag");
+    Entity* model = newEntity("models/backpack/backpack.obj", "shaders/main/shader.vert", "shaders/main/shader.frag");
 
     while(!glfwWindowShouldClose(window))
     {
@@ -191,10 +198,10 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        mat4 view;
+        // View Matrix Setup TODO: MOVE THIS ELSEWHERE
         cameraGetViewMatrix(camera, view);
 
-        mat4 projection;
+        // Projection Matrix Setup TODO: SETUP THIS ELSEWHERE
         glm_mat4_identity(projection);
         glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
 
@@ -204,18 +211,27 @@ int main()
         // Set up the directional light
         vec3 lightDir = { -0.2f, -1.0f, -0.3f };
         vec3 viewspaceLightDir;
-        glm_mat4_mulv3(view, lightDir, 1.0, viewspaceLightDir);
-
+        glm_mat4_mulv3(view, lightDir, 1.0, dirLight.direction);
+        
         // Lighting color information
-        vec3 ambientColor = { 0.1f, 0.1f, 0.1f };
-        vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
-        vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
+        dirLight.ambient[0] = 0.1f;
+        dirLight.ambient[1] = 0.1f;
+        dirLight.ambient[2] = 0.1f;
+
+        dirLight.diffuse[0] = 0.5f;
+        dirLight.diffuse[1] = 0.5f;
+        dirLight.diffuse[2] = 0.5f;
+
+        dirLight.specular[0] = 1.0f;
+        dirLight.specular[1] = 1.0f;
+        dirLight.specular[2] = 1.0f;
 
         mat4 backpackModel;
         glm_mat4_identity(backpackModel);
         vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
         glm_translate(backpackModel, backpackPosition);
 
+        /*
         shaderUse(mainShader);
         shaderSetMat4v(mainShader, "view", view);
         shaderSetMat4v(mainShader, "projection", projection);
@@ -228,6 +244,10 @@ int main()
         // Draw models
         model_draw(floor, mainShader);
         model_draw(backpack, mainShader);
+        */
+
+        //entity_draw(backpack);
+        entity_draw(model);
 
         glfwSwapBuffers(window); // Swap buffers!
         glfwPollEvents(); // Read inputs!
