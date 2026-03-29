@@ -172,17 +172,6 @@ int main()
         return -1;
     }
 
-    // Set up a shader for our backpack
-    Shader* outlineShader = newShader(
-        "shaders/outlineHighlight/shader.vert",
-        "shaders/outlineHighlight/shader.frag"
-    );
-    if (outlineShader == NULL) {
-        printf("I'm outta here!\n");
-        glfwTerminate();
-        return -1;
-    }
-
     // XXX: Need to declare it like this so that dirname can edit it later :/
     char backpackModelPath[] = "models/backpack/backpack.obj";
     Model* backpack = newModel(backpackModelPath);
@@ -236,37 +225,12 @@ int main()
         shaderSetVec3(mainShader, "dirLight.specular", lightColor);
         shaderSetMat4v(mainShader, "model", backpackModel);
 
+        // Draw models
         model_draw(floor, mainShader);
-
-        glEnable(GL_STENCIL_TEST);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-        // 1st pass, draw the object, writing to stencil buffer
-        glStencilFunc(GL_ALWAYS, 1, 0xFF); // Pass all fragments to stencil test
-        glStencilMask(0xFF); // Enable writing to stencil buffer
         model_draw(backpack, mainShader);
 
-        // 2nd pass, draw outline.
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
-        shaderUse(outlineShader);
-        shaderSetMat4v(outlineShader, "view", view);
-        shaderSetMat4v(outlineShader, "projection", projection);
-        float scale = 1.1f;
-        vec3 sc = { scale, scale, scale };
-        glm_scale(backpackModel, sc);
-        shaderSetMat4v(outlineShader, "model", backpackModel);
-        model_draw(backpack, outlineShader);
-        glBindVertexArray(0);
-        glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 0, 0xFF);
-        glEnable(GL_DEPTH_TEST);
-
-        // Swap buffers!
-        glfwSwapBuffers(window);
-        // Read inputs!
-        glfwPollEvents();
+        glfwSwapBuffers(window); // Swap buffers!
+        glfwPollEvents(); // Read inputs!
     }
 
     glfwTerminate();
