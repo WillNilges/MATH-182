@@ -50,9 +50,11 @@ uniform DirLight dirLight;
 
 #define NR_POINT_LIGHTS 1
 uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform int pointLightCount;
 
 #define NR_SPOT_LIGHTS 1
 uniform SpotLight spotLights[NR_SPOT_LIGHTS];
+uniform int spotLightCount;
 
 //#define NR_MATERIALS 2 // There will probably be like 4 IDK
 uniform Material material;
@@ -180,13 +182,8 @@ void main()
     // phase 1: Directional lighting
     result += CalcDirLight(dirLight, norm, viewDir);
 
-    // phase 2: Point lights
-    for (int i = 0; i < NR_POINT_LIGHTS; i++)
-    {
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
-    }
 
-    for (int i = 0; i < NR_SPOT_LIGHTS; i++)
+    for (int i = 0; i < spotLightCount; i++)
     {
         result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
     }

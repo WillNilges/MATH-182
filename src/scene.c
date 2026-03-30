@@ -97,6 +97,7 @@ void scene_draw(Scene* scene, Camera* camera)
     }
 
     // Set up point lights
+    shaderSetInt(s, "pointLightCount", (int)(scene->lighting->lenPointLights));
     for (unsigned int j = 0; j < scene->lighting->lenPointLights; j++) {
       vec3 viewspaceLightPos;
       glm_mat4_mulv3(camera->view, scene->lighting->pointLights[j].position.raw, 1.0, viewspaceLightPos);
@@ -111,6 +112,7 @@ void scene_draw(Scene* scene, Camera* camera)
 
     // Set up spot lights
     // Add the flashlight info to the shader
+    shaderSetInt(s, "spotLightCount", (int)(scene->lighting->lenSpotLights));
     for (unsigned int j = 0; j < scene->lighting->lenSpotLights; j++) {
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].position.raw, 1.0, viewspaceLightPos);
