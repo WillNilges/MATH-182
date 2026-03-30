@@ -117,7 +117,12 @@ void scene_draw(Scene* scene, Camera* camera)
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].position.raw, 1.0, viewspaceLightPos);
         shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), viewspaceLightPos);
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), scene->lighting->spotLights[j].direction.raw);
+
+        vec3 viewspaceLightDir;
+        glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].direction.raw, 1.0, viewspaceLightDir);
+    
+        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), viewspaceLightDir);
+
         shaderSetFloat(s, shaderGetUniformName("spotLights", j, "cutOff"), scene->lighting->spotLights[j].cutOff);
         shaderSetFloat(s, shaderGetUniformName("spotLights", j, "outerCutOff"), scene->lighting->spotLights[j].outerCutOff);
         shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "ambient"), scene->lighting->spotLights[j].ambient.raw);
