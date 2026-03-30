@@ -114,13 +114,14 @@ void scene_draw(Scene* scene, Camera* camera)
     // Add the flashlight info to the shader
     shaderSetInt(s, "spotLightCount", (int)(scene->lighting->lenSpotLights));
     for (unsigned int j = 0; j < scene->lighting->lenSpotLights; j++) {
+        // FIXME: There is literally one piece I am missing here. Why does the spotlight move
+        // when I move?
         vec3 viewspaceLightPos;
         glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].position.raw, 1.0, viewspaceLightPos);
         shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), viewspaceLightPos);
 
         vec3 viewspaceLightDir;
         glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].direction.raw, 1.0, viewspaceLightDir);
-    
         shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), viewspaceLightDir);
 
         shaderSetFloat(s, shaderGetUniformName("spotLights", j, "cutOff"), scene->lighting->spotLights[j].cutOff);
