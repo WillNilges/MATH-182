@@ -173,6 +173,7 @@ void shaderSetMat4v(Shader* shader, const char* name, mat4 mat)
     glad_glUniformMatrix4fv(glGetUniformLocation(shader->ID, name), 1, GL_FALSE, (float*) mat);
 }
 
+// This shit leaks so much memory it's insane
 char* shaderGetUniformName(char* name, unsigned int index, char* property)
 {
     size_t lenName = strlen(name);

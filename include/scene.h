@@ -3,7 +3,6 @@
 #include "entity.h"
 #include "light.h"
 #include "shader.h"
-#endif
 
 /*
 enum LightType {
@@ -53,3 +52,5 @@ void scene_registerShader(Scene* scene, Shader* shader);
 void scene_registerEntity(Scene* scene, Entity* entity);
 
 void scene_draw(Scene* scene, Camera* camera);
+
+#endif

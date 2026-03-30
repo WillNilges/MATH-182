@@ -48,7 +48,7 @@ in vec2 TexCoords;
 
 uniform DirLight dirLight;
 
-#define NR_POINT_LIGHTS 2
+#define NR_POINT_LIGHTS 1
 uniform PointLight pointLights[NR_POINT_LIGHTS];
 
 #define NR_SPOT_LIGHTS 1
@@ -114,6 +114,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
+//FIXME: Spot lights aren't working when placed in arbitrary places in the world.
+// The angle of the beam changes and distorts as you look around, and the attenuation
+// is probably wrong.
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
@@ -176,7 +179,6 @@ void main()
     result += CalcDirLight(dirLight, norm, viewDir);
 
     // phase 2: Point lights
-    /*
     for (int i = 0; i < NR_POINT_LIGHTS; i++)
     {
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
@@ -186,7 +188,6 @@ void main()
     {
         result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
     }
-    */
 
     FragColor = vec4(result, 1.0);
 }

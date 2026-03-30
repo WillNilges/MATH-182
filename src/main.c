@@ -177,14 +177,43 @@ int main()
     // Set up the directional light
     DirLight dirLight;
     dirLight_setDirection(&dirLight, -0.2f, -1.0f, -0.3f);
-
-    // Lighting color information
     dirLight_setAmbient(&dirLight, 0.1f, 0.1f, 0.1f);
     dirLight_setDiffuse(&dirLight, 0.5f, 0.5f, 0.5f);
     dirLight_setSpecular(&dirLight, 1.0f, 1.0f, 1.0f);
 
+    PointLight pointLight = 
+        {
+            { 3.0f, 4.0f, -3.0f },
+            1.0f,
+            0.09f,
+            0.032f,
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 0.1f, 0.0f },
+            { 0.0f, 0.5f, 0.0f },
+        };
+
+        
+    SpotLight spotLight = 
+        {
+            { 3.0f, 4.0f, -3.0f }, 
+            { 0.0f, 0.0f, -1.0f }, 
+
+            cos(glm_rad(12.5f)),
+            cos(glm_rad(20.5f)),
+
+            { 0.1f, 0.1f, 0.1f },
+            { 0.5f, 0.5f, 0.5f },
+            { 1.0f, 1.0f, 1.0f },
+
+            1.0f,
+            0.09f,
+            0.032f,
+    };
+
     Scene* scene = newScene();
-    scene_registerDirLight(scene, &dirLight);
+    //scene_registerDirLight(scene, &dirLight);
+    scene_registerPointLight(scene, &pointLight);
+    scene_registerSpotLight(scene, &spotLight);
     scene_registerShader(scene, mainShader);
     scene_registerEntity(scene, backpack);
     scene_registerEntity(scene, floor);
