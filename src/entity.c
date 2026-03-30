@@ -31,5 +31,4 @@ void entity_draw(Entity* entity, Camera* camera) {
   shaderSetMat4v(entity->shader, "model", model);
 
   model_draw(entity->model, entity->shader);
- 
 }

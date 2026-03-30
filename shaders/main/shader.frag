@@ -117,6 +117,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 //FIXME: Spot lights aren't working when placed in arbitrary places in the world.
 // The angle of the beam changes and distorts as you look around, and the attenuation
 // is probably wrong.
+// probably something with it being calculated in screenspace
 vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
 {
     vec3 lightDir = normalize(light.position - fragPos);
@@ -131,6 +132,7 @@ vec3 CalcSpotLight(SpotLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
         float intensity = clamp((theta - light.outerCutOff) / epsilon, 0.0, 1.0);
 
         vec3 viewPos = vec3(0.0);
+
         // Ambient
         vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
 
