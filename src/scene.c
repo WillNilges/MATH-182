@@ -21,9 +21,9 @@ Scene* newScene()
   Scene* scene = malloc(sizeof(Scene));
   scene->shaders = malloc(sizeof(Shader));
   scene->lighting = malloc(sizeof(Lighting));
-  scene->lighting->dirLight = NULL;
-  scene->lighting->pointLights = NULL;
-  scene->lighting->spotLights = NULL;
+  scene->lighting->dirLight = malloc(sizeof(DirLight));
+  scene->lighting->pointLights = malloc(sizeof(PointLight));
+  scene->lighting->spotLights = malloc(sizeof(SpotLight));
   scene->entities = malloc(sizeof(Entity));
   return scene;
 }
@@ -98,8 +98,12 @@ void scene_draw(Scene* scene, Camera* camera)
     shaderSetMat4v(s, "view", camera->view);
     shaderSetMat4v(s, "projection", camera->projection);
 
+    // Set up lights
+
+    // Tell the shader how many lights we have
     lighting_setCounts(scene->lighting, s);
 
+    // Set up the dir light if one exists
     shader_loadDirLight(s, scene->lighting->dirLight, camera);
 
     // Set up point lights
@@ -115,8 +119,6 @@ void scene_draw(Scene* scene, Camera* camera)
       shader_loadSpotLight(s, &(scene->lighting->spotLights[j]), j, camera);
     }
     
-    // XXX: Would it be nice to pass the lights into some kind of generic function per shader?
-
     for (int j = 0; j < scene->lenEntities; j++)
     {
       Entity* e = &(scene->entities[j]);
