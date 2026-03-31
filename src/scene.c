@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "cglm/mat3.h"
 #include "entity.h"
 #include <stdlib.h>
 
@@ -64,6 +65,25 @@ void scene_registerEntity(Scene* scene, Entity* entity)
   scene->entities[scene->lenEntities - 1] = *entity;
 }
 
+void world_to_view(const vec3 worldPos, const vec3 worldNorm,
+                   const mat4 view, vec3 outViewPos, vec3 outViewNorm) {
+    // Extract 3×3 linear part (upper-left) of view matrix
+    mat3 M;
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 3; ++j)
+            M[i][j] = view[i][j];
+
+    // Position: transform with 3×3 (ignores translation)
+    glm_mat3_mulv(M, worldPos, outViewPos);
+
+    // Normal: transform with inverse transpose of M
+    mat3 Minv;
+    glm_mat3_inv(M, Minv);
+    glm_mat3_transpose(Minv);  // in-place: Minv now = (M⁻¹)ᵀ
+    glm_mat3_mulv(Minv, worldNorm,  outViewNorm);
+    glm_vec3_normalize(outViewNorm);
+}
+
 void scene_draw(Scene* scene, Camera* camera)
 {
   // For each shader
@@ -121,14 +141,36 @@ void scene_draw(Scene* scene, Camera* camera)
         // glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].position.raw, 1.0, viewspaceLightPos);
         // shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), viewspaceLightPos);
 
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), scene->lighting->spotLights[j].position.raw);
+        vec3 viewspaceLightPos;
+        vec3 viewspaceLightDir;
+        
+        world_to_view(
+          scene->lighting->spotLights[j].position.raw,
+          scene->lighting->spotLights[j].direction.raw,
+          camera->view,
+          viewspaceLightPos,
+          viewspaceLightDir
+        );
+
+        //shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), viewspaceLightPos);
+
+        glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].position.raw, 1.0, viewspaceLightPos);
+        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), viewspaceLightPos);
+
+        
+        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), viewspaceLightDir);
+
+
+        // shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), scene->lighting->spotLights[j].position.raw);
 
 
         // vec3 viewspaceLightDir;
         // glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].direction.raw, 1.0, viewspaceLightDir);
         // shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), viewspaceLightDir);
 
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), scene->lighting->spotLights[j].direction.raw);
+        // glm_mat3_transpose(vec3 *m)
+
+        // shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), scene->lighting->spotLights[j].direction.raw);
 
         shaderSetFloat(s, shaderGetUniformName("spotLights", j, "cutOff"), scene->lighting->spotLights[j].cutOff);
         shaderSetFloat(s, shaderGetUniformName("spotLights", j, "outerCutOff"), scene->lighting->spotLights[j].outerCutOff);
