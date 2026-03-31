@@ -2,7 +2,19 @@
 #include "cglm/mat3.h"
 #include "entity.h"
 #include "light.h"
+#include "shader.h"
 #include <stdlib.h>
+
+
+void lighting_setCounts(Lighting* lighting, Shader* shader)
+{
+      shaderSetInt(shader, "pointLightCount", (int)(lighting->lenPointLights));
+      shaderSetInt(shader, "spotLightCount", (int)(lighting->lenSpotLights));
+}
+
+void lighting_setLights(Lighting* lighting, Shader* shader) {
+  
+}
 
 Scene* newScene()
 {
@@ -86,63 +98,21 @@ void scene_draw(Scene* scene, Camera* camera)
     shaderSetMat4v(s, "view", camera->view);
     shaderSetMat4v(s, "projection", camera->projection);
 
+    lighting_setCounts(scene->lighting, s);
+
     dirLight_setInShader(scene->lighting->dirLight, camera, s);
 
     // Set up point lights
-    shaderSetInt(s, "pointLightCount", (int)(scene->lighting->lenPointLights));
     for (unsigned int j = 0; j < scene->lighting->lenPointLights; j++) {
-      vec3 viewspaceLightPos;
-      glm_mat4_mulv3(camera->view, scene->lighting->pointLights[j].position.raw, 1.0, viewspaceLightPos);
-
-      // TODO: Maybe the lights should take care of initializing this. These are implementation details of the lights.
-      // Doesn't matter what shader you bring, it should use these variable types.
-      shaderSetVec3(s,  shaderGetUniformName("pointLights", j, "position"),  viewspaceLightPos);
-      shaderSetFloat(s, shaderGetUniformName("pointLights", j, "constant"),  scene->lighting->pointLights[j].constant);
-      shaderSetFloat(s, shaderGetUniformName("pointLights", j, "linear"),    scene->lighting->pointLights[j].linear);
-      shaderSetFloat(s, shaderGetUniformName("pointLights", j, "quadratic"), scene->lighting->pointLights[j].quadratic);
-      shaderSetVec3(s,  shaderGetUniformName("pointLights", j, "ambient"),   scene->lighting->pointLights[j].ambient.raw);
-      shaderSetVec3(s,  shaderGetUniformName("pointLights", j, "diffuse"),   scene->lighting->pointLights[j].diffuse.raw);
-      shaderSetVec3(s,  shaderGetUniformName("pointLights", j, "specular"),  scene->lighting->pointLights[j].specular.raw);
+      pointLight_setInShader(&(scene->lighting->pointLights[j]), camera, s, j);
     }
 
     // Set up spot lights
     // Add the flashlight info to the shader
     shaderSetInt(s, "spotLightCount", (int)(scene->lighting->lenSpotLights));
-    for (unsigned int j = 0; j < scene->lighting->lenSpotLights; j++) {
-        vec3 viewspaceLightPos;
-        
-        // Convert light position to world space
-        glm_mat4_mulv3(camera->view, scene->lighting->spotLights[j].position.raw, 1.0, viewspaceLightPos);
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "position"), viewspaceLightPos);
-
-        // Convert light direction to view space
-        
-        // FIXME: There's another conversion like this I need to do on the CPU.
-        // Taking the inverse transpose of the model
-        // before passing it to the vertex shader.
-        vec3 viewspaceLightDir;
-        mat3 Minv;
-        // Extract 3×3 linear part (upper-left) of view matrix
-        mat3 M;
-        for (int i = 0; i < 3; ++i)
-            for (int j = 0; j < 3; ++j)
-                M[i][j] = camera->view[i][j];
-
-        glm_mat3_inv(M, Minv);
-        glm_mat3_transpose(Minv);  // in-place: Minv now = (M⁻¹)ᵀ
-        glm_mat3_mulv(Minv, scene->lighting->spotLights[j].position.raw, viewspaceLightDir);
-        glm_vec3_normalize(viewspaceLightDir);
-               
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "direction"), viewspaceLightDir);
-
-        shaderSetFloat(s, shaderGetUniformName("spotLights", j, "cutOff"), scene->lighting->spotLights[j].cutOff);
-        shaderSetFloat(s, shaderGetUniformName("spotLights", j, "outerCutOff"), scene->lighting->spotLights[j].outerCutOff);
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "ambient"), scene->lighting->spotLights[j].ambient.raw);
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "diffuse"), scene->lighting->spotLights[j].diffuse.raw);
-        shaderSetVec3(s,  shaderGetUniformName("spotLights", j, "specular"), scene->lighting->spotLights[j].specular.raw);
-        shaderSetFloat(s, shaderGetUniformName("spotLights", j, "constant"), scene->lighting->spotLights[j].constant);
-        shaderSetFloat(s, shaderGetUniformName("spotLights", j, "linear"), scene->lighting->spotLights[j].linear);
-        shaderSetFloat(s, shaderGetUniformName("spotLights", j, "quadratic"), scene->lighting->spotLights[j].quadratic);
+    for (unsigned int j = 0; j < scene->lighting->lenSpotLights; j++)
+    {
+      spotLight_setInShader(&(scene->lighting->spotLights[j]), camera, s, j);
     }
     
     // XXX: Would it be nice to pass the lights into some kind of generic function per shader?

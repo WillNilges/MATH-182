@@ -67,7 +67,7 @@ typedef struct {
     vec3s specular;
 } PointLight;
 
-
+void pointLight_setInShader(PointLight* light, Camera* camera, Shader* shader, int lightIdx);
 
 typedef struct {
     vec3s position;
@@ -83,5 +83,7 @@ typedef struct {
     float linear;
     float quadratic;
 } SpotLight;
+
+void spotLight_setInShader(SpotLight* light, Camera* camera, Shader* shader, int lightIdx);
 
 #endif

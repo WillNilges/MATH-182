@@ -33,6 +33,9 @@ typedef struct {
   size_t lenSpotLights;
 } Lighting;
 
+void lighting_setQty(Lighting* lighting, Shader* shader);
+void lighting_setLights(Lighting*lighting, Shader* shader);
+
 typedef struct {
   Shader* shaders;
   size_t lenShaders;
