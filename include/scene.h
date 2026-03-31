@@ -26,10 +26,10 @@ typedef struct {
 typedef struct {
   DirLight* dirLight; // This is only meant to be one light: THE SUN!
 
-  PointLight* pointLights;
+  PointLight** pointLights;
   size_t lenPointLights;
 
-  SpotLight* spotLights;
+  SpotLight** spotLights;
   size_t lenSpotLights;
 } Lighting;
 
@@ -37,12 +37,12 @@ void lighting_setQty(Lighting* lighting, Shader* shader);
 void lighting_setLights(Lighting*lighting, Shader* shader);
 
 typedef struct {
-  Shader* shaders;
+  Shader** shaders;
   size_t lenShaders;
 
-  Lighting* lighting;
+  Lighting lighting;
   
-  Entity* entities;
+  Entity** entities;
   size_t lenEntities;
 } Scene;
 
