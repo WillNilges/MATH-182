@@ -1,5 +1,7 @@
 #include "light.h"
-
+#include "camera.h"
+#include "cglm/mat4.h"
+#include <stdio.h>
 
 void dirLight_setDirection(DirLight* light, float x, float y, float z) {
   light->direction.x = x;
@@ -24,3 +26,23 @@ void dirLight_setSpecular(DirLight* light, float x, float y, float z) {
   light->specular.y = y;
   light->specular.z = z;
 }
+
+void dirLight_setInShader(DirLight* light, Camera* camera, Shader *shader)
+{
+      if (light == NULL)
+      {
+        printf("Warning: Dir light is NULL. Bailing out");
+        return;
+      }
+
+      // Do the directional lighting calculations
+      // Process lighting information using provided camera
+      vec3 viewspaceLightDir;
+      glm_mat4_mulv3(camera->view, light->direction.raw, 1.0, viewspaceLightDir);
+    
+      shaderSetVec3(shader, "dirLight.direction", viewspaceLightDir);
+      shaderSetVec3(shader, "dirLight.ambient", light->ambient.raw);
+      shaderSetVec3(shader, "dirLight.diffuse", light->diffuse.raw);
+      shaderSetVec3(shader, "dirLight.specular", light->specular.raw);
+}
+

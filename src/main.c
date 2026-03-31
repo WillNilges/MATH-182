@@ -214,7 +214,7 @@ int main()
     };
 
     Scene* scene = newScene();
-    //scene_registerDirLight(scene, &dirLight);
+    scene_registerDirLight(scene, &dirLight);
     scene_registerPointLight(scene, &pointLight);
     scene_registerSpotLight(scene, &spotLight);
     scene_registerShader(scene, mainShader);

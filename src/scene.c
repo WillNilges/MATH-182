@@ -1,6 +1,7 @@
 #include "scene.h"
 #include "cglm/mat3.h"
 #include "entity.h"
+#include "light.h"
 #include <stdlib.h>
 
 Scene* newScene()
@@ -85,23 +86,16 @@ void scene_draw(Scene* scene, Camera* camera)
     shaderSetMat4v(s, "view", camera->view);
     shaderSetMat4v(s, "projection", camera->projection);
 
-    if (scene->lighting->dirLight != NULL) {
-      // Do the directional lighting calculations
-      // Process lighting information using provided camera
-      vec3 viewspaceLightDir;
-      glm_mat4_mulv3(camera->view, scene->lighting->dirLight->direction.raw, 1.0, viewspaceLightDir);
-    
-      shaderSetVec3(s, "dirLight.direction", viewspaceLightDir);
-      shaderSetVec3(s, "dirLight.ambient", scene->lighting->dirLight->ambient.raw);
-      shaderSetVec3(s, "dirLight.diffuse", scene->lighting->dirLight->diffuse.raw);
-      shaderSetVec3(s, "dirLight.specular", scene->lighting->dirLight->specular.raw);
-    }
+    dirLight_setInShader(scene->lighting->dirLight, camera, s);
 
     // Set up point lights
     shaderSetInt(s, "pointLightCount", (int)(scene->lighting->lenPointLights));
     for (unsigned int j = 0; j < scene->lighting->lenPointLights; j++) {
       vec3 viewspaceLightPos;
       glm_mat4_mulv3(camera->view, scene->lighting->pointLights[j].position.raw, 1.0, viewspaceLightPos);
+
+      // TODO: Maybe the lights should take care of initializing this. These are implementation details of the lights.
+      // Doesn't matter what shader you bring, it should use these variable types.
       shaderSetVec3(s,  shaderGetUniformName("pointLights", j, "position"),  viewspaceLightPos);
       shaderSetFloat(s, shaderGetUniformName("pointLights", j, "constant"),  scene->lighting->pointLights[j].constant);
       shaderSetFloat(s, shaderGetUniformName("pointLights", j, "linear"),    scene->lighting->pointLights[j].linear);
