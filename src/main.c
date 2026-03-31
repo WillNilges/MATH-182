@@ -172,7 +172,10 @@ int main()
     }
 
     Entity* backpack = newEntity("models/backpack/backpack.obj", mainShader);
+    backpack->position.z = -3.0f;
+
     Entity* floor = newEntity("models/plane/plane.obj", mainShader);
+    floor->position.y = -1.0f;
 
     // Set up the directional light
     DirLight dirLight;
@@ -183,7 +186,7 @@ int main()
 
     PointLight pointLight = 
         {
-            { 3.0f, 4.0f, -3.0f },
+            { -10.0f, 4.0f, -3.0f },
             1.0f,
             0.09f,
             0.032f,
@@ -195,7 +198,7 @@ int main()
         
     SpotLight spotLight = 
         {
-            { 3.0f, 4.0f, -3.0f }, 
+            { 0.0f, 0.0f, -1.0f }, 
             { 0.0f, 0.0f, -1.0f }, 
 
             cos(glm_rad(12.5f)),
@@ -212,7 +215,7 @@ int main()
 
     Scene* scene = newScene();
     //scene_registerDirLight(scene, &dirLight);
-    // scene_registerPointLight(scene, &pointLight);
+    scene_registerPointLight(scene, &pointLight);
     scene_registerSpotLight(scene, &spotLight);
     scene_registerShader(scene, mainShader);
     scene_registerEntity(scene, backpack);
