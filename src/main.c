@@ -177,6 +177,11 @@ int main()
     Entity* floor = newEntity("models/plane/plane.obj", mainShader);
     floor->position.y = -1.0f;
 
+    Entity* cube = newEntity("models/cube/cube.obj", mainShader);
+    cube->position.z = -3.0f;
+    cube->position.x = 4.0f;
+    cube->position.y = 4.0f;
+
     // Set up the directional light
     DirLight dirLight;
     dirLight_setDirection(&dirLight, -0.2f, -1.0f, -0.3f);
@@ -220,6 +225,7 @@ int main()
     scene_registerShader(scene, mainShader);
     scene_registerEntity(scene, backpack);
     scene_registerEntity(scene, floor);
+    scene_registerEntity(scene, cube);
 
     /* /Scene Object? */
 
@@ -242,6 +248,10 @@ int main()
         glfwSwapBuffers(window); // Swap buffers!
         glfwPollEvents(); // Read inputs!
     }
+
+    printf("Cleaning up. Goodbye!\n");
+    // FIXME: How do I clean up my assets???
+    free(scene);
 
     glfwTerminate();
     return 0;
