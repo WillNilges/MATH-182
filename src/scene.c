@@ -115,9 +115,6 @@ void scene_draw(Scene* scene, Camera* camera)
     // Add the flashlight info to the shader
     shaderSetInt(s, "spotLightCount", (int)(scene->lighting->lenSpotLights));
     for (unsigned int j = 0; j < scene->lighting->lenSpotLights; j++) {
-        // FIXME: There is literally one piece I am missing here. Why does the spotlight move
-        // when I move?
-  
         vec3 viewspaceLightPos;
         
         // Convert light position to world space
