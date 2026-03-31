@@ -1,6 +1,8 @@
 #ifndef SHADER_H
 #define SHADER_H
+#include "camera.h"
 #include "cglm/types.h"
+#include "light.h"
 
 typedef struct {
     unsigned int ID;
@@ -20,5 +22,9 @@ void shaderSetVec3f(Shader* shader, const char* name, float x, float y, float z)
 void shaderSetVec4(Shader* shader, const char* name, vec4 vec);
 void shaderSetMat4v(Shader* shader, const char* name, mat4 mat);
 
-char* shaderGetUniformName(char* name, unsigned int index, char* property);
+char* shaderGetUniformName(char* uniformName, char* name, unsigned int index, char* property);
+
+void shader_loadDirLight(Shader* shader, DirLight* light, Camera* camera);
+void shader_loadPointLight(Shader* shader, PointLight* light, int lightIdx, Camera* camera);
+void shader_loadSpotLight(Shader* shader, SpotLight* light, int lightIdx, Camera* camera);
 #endif

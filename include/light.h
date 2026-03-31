@@ -1,8 +1,6 @@
 #ifndef LIGHT_H
 #define LIGHT_H
-#include "camera.h"
 #include "cglm/types-struct.h"
-#include "shader.h"
 
 // This is where we define our lighting standards
 // Any shader that wants lights needs to adhere to this
@@ -53,8 +51,6 @@ void dirLight_setAmbient(DirLight* light, float x, float y, float z);
 void dirLight_setDiffuse(DirLight* light, float x, float y, float z);
 void dirLight_setSpecular(DirLight* light, float x, float y, float z);
 
-void dirLight_setInShader(DirLight* light, Camera* camera, Shader* shader);
-
 typedef struct {
     vec3s position;
 
@@ -67,7 +63,6 @@ typedef struct {
     vec3s specular;
 } PointLight;
 
-void pointLight_setInShader(PointLight* light, Camera* camera, Shader* shader, int lightIdx);
 
 typedef struct {
     vec3s position;
@@ -84,6 +79,5 @@ typedef struct {
     float quadratic;
 } SpotLight;
 
-void spotLight_setInShader(SpotLight* light, Camera* camera, Shader* shader, int lightIdx);
 
 #endif

@@ -100,11 +100,11 @@ void scene_draw(Scene* scene, Camera* camera)
 
     lighting_setCounts(scene->lighting, s);
 
-    dirLight_setInShader(scene->lighting->dirLight, camera, s);
+    shader_loadDirLight(s, scene->lighting->dirLight, camera);
 
     // Set up point lights
     for (unsigned int j = 0; j < scene->lighting->lenPointLights; j++) {
-      pointLight_setInShader(&(scene->lighting->pointLights[j]), camera, s, j);
+      shader_loadPointLight(s, &(scene->lighting->pointLights[j]), j, camera);
     }
 
     // Set up spot lights
@@ -112,7 +112,7 @@ void scene_draw(Scene* scene, Camera* camera)
     shaderSetInt(s, "spotLightCount", (int)(scene->lighting->lenSpotLights));
     for (unsigned int j = 0; j < scene->lighting->lenSpotLights; j++)
     {
-      spotLight_setInShader(&(scene->lighting->spotLights[j]), camera, s, j);
+      shader_loadSpotLight(s, &(scene->lighting->spotLights[j]), j, camera);
     }
     
     // XXX: Would it be nice to pass the lights into some kind of generic function per shader?
