@@ -2,17 +2,14 @@
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include <math.h>
-#include "cglm/affine.h"
-#include "cglm/cglm.h"
-#include "cglm/mat3.h"
 #include "cglm/mat4.h"
 #include "cglm/util.h"
+#include "entity.h"
 #include "light.h"
 #include "model.h"
+#include "scene.h"
 #include "shader.h"
 #include "camera.h"
-#include "texture.h"
 #include "stb_image.h"
 
 // Epic face opacity
@@ -161,6 +158,8 @@ int main()
     // Initialize the camera
     camera = newCameraWithDefaults();
 
+    /* Scene Object?*/
+
     // Set up a shader for our backpack
     Shader* mainShader = newShader(
         "shaders/main/shader.vert",
@@ -172,23 +171,63 @@ int main()
         return -1;
     }
 
-    // Set up a shader for our backpack
-    Shader* outlineShader = newShader(
-        "shaders/outlineHighlight/shader.vert",
-        "shaders/outlineHighlight/shader.frag"
-    );
-    if (outlineShader == NULL) {
-        printf("I'm outta here!\n");
-        glfwTerminate();
-        return -1;
-    }
+    Entity* backpack = newEntity("models/backpack/backpack.obj", mainShader);
+    backpack->position.z = -3.0f;
 
-    // XXX: Need to declare it like this so that dirname can edit it later :/
-    char backpackModelPath[] = "models/backpack/backpack.obj";
-    Model* backpack = newModel(backpackModelPath);
+    Entity* floor = newEntity("models/plane/plane.obj", mainShader);
+    floor->position.y = -1.0f;
 
-    char floorModelPath[] = "models/plane/plane.obj";
-    Model* floor = newModel(floorModelPath);
+    Entity* cube = newEntity("models/cube/cube.obj", mainShader);
+    cube->position.z = -3.0f;
+    cube->position.x = 4.0f;
+    cube->position.y = 4.0f;
+
+    // Set up the directional light
+    DirLight dirLight;
+    dirLight_setDirection(&dirLight, -0.2f, -1.0f, -0.3f);
+    dirLight_setAmbient(&dirLight, 0.1f, 0.1f, 0.1f);
+    dirLight_setDiffuse(&dirLight, 0.5f, 0.5f, 0.5f);
+    dirLight_setSpecular(&dirLight, 1.0f, 1.0f, 1.0f);
+
+    PointLight pointLight = 
+        {
+            { -10.0f, 4.0f, -3.0f },
+            1.0f,
+            0.09f,
+            0.032f,
+            { 0.0f, 1.0f, 0.0f },
+            { 0.0f, 0.1f, 0.0f },
+            { 0.0f, 0.5f, 0.0f },
+        };
+
+        
+    SpotLight spotLight = 
+        {
+            { 0.0f, 0.0f, -1.0f }, 
+            { 0.0f, 0.0f, -1.0f }, 
+
+            cos(glm_rad(12.5f)),
+            cos(glm_rad(20.5f)),
+
+            { 0.1f, 0.1f, 0.1f },
+            { 0.5f, 0.5f, 0.5f },
+            { 1.0f, 1.0f, 1.0f },
+
+            1.0f,
+            0.09f,
+            0.032f,
+    };
+
+    Scene* scene = newScene();
+    scene_registerDirLight(scene, &dirLight);
+    scene_registerPointLight(scene, &pointLight);
+    scene_registerSpotLight(scene, &spotLight);
+    scene_registerShader(scene, mainShader);
+    scene_registerEntity(scene, backpack);
+    scene_registerEntity(scene, floor);
+    scene_registerEntity(scene, cube);
+
+    /* /Scene Object? */
 
     while(!glfwWindowShouldClose(window))
     {
@@ -202,72 +241,17 @@ int main()
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        mat4 view;
-        cameraGetViewMatrix(camera, view);
+        cameraUpdateMatricies(camera, windowWidth, windowHeight);
+        
+        scene_draw(scene, camera);
 
-        mat4 projection;
-        glm_mat4_identity(projection);
-        glm_perspective(glm_rad(camera->fov), (float)windowWidth/(float)windowHeight, 0.1f, 100.0f, projection);
-
-        vec3 zero = { 0.0f, 0.0f, 0.0f };
-        vec3 zeroOne = { 0.0f, 0.0f, -1.0f };
-
-        // Set up the directional light
-        vec3 lightDir = { -0.2f, -1.0f, -0.3f };
-        vec3 viewspaceLightDir;
-        glm_mat4_mulv3(view, lightDir, 1.0, viewspaceLightDir);
-
-        // Lighting color information
-        vec3 ambientColor = { 0.1f, 0.1f, 0.1f };
-        vec3 diffuseColor = { 0.5f, 0.5f, 0.5f };
-        vec3 lightColor =   { 1.0f, 1.0f, 1.0f };
-
-        mat4 backpackModel;
-        glm_mat4_identity(backpackModel);
-        vec3 backpackPosition = { 0.0f, 0.0f, 0.0f };
-        glm_translate(backpackModel, backpackPosition);
-
-        shaderUse(mainShader);
-        shaderSetMat4v(mainShader, "view", view);
-        shaderSetMat4v(mainShader, "projection", projection);
-        shaderSetVec3(mainShader, "dirLight.direction", viewspaceLightDir);
-        shaderSetVec3(mainShader, "dirLight.ambient", ambientColor);
-        shaderSetVec3(mainShader, "dirLight.diffuse", diffuseColor);
-        shaderSetVec3(mainShader, "dirLight.specular", lightColor);
-        shaderSetMat4v(mainShader, "model", backpackModel);
-
-        model_draw(floor, mainShader);
-
-        glEnable(GL_STENCIL_TEST);
-        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-        // 1st pass, draw the object, writing to stencil buffer
-        glStencilFunc(GL_ALWAYS, 1, 0xFF); // Pass all fragments to stencil test
-        glStencilMask(0xFF); // Enable writing to stencil buffer
-        model_draw(backpack, mainShader);
-
-        // 2nd pass, draw outline.
-        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
-        glDisable(GL_DEPTH_TEST);
-        shaderUse(outlineShader);
-        shaderSetMat4v(outlineShader, "view", view);
-        shaderSetMat4v(outlineShader, "projection", projection);
-        float scale = 1.1f;
-        vec3 sc = { scale, scale, scale };
-        glm_scale(backpackModel, sc);
-        shaderSetMat4v(outlineShader, "model", backpackModel);
-        model_draw(backpack, outlineShader);
-        glBindVertexArray(0);
-        glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 0, 0xFF);
-        glEnable(GL_DEPTH_TEST);
-
-        // Swap buffers!
-        glfwSwapBuffers(window);
-        // Read inputs!
-        glfwPollEvents();
+        glfwSwapBuffers(window); // Swap buffers!
+        glfwPollEvents(); // Read inputs!
     }
+
+    printf("Cleaning up. Goodbye!\n");
+    // FIXME: How do I clean up my assets???
+    free(scene);
 
     glfwTerminate();
     return 0;

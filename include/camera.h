@@ -20,6 +20,9 @@ typedef struct {
     vec3 right;
     vec3 worldUp;
 
+    mat4 view;
+    mat4 projection;
+
     float pitch;
     float yaw;
     float roll;
@@ -35,6 +38,9 @@ typedef struct {
 Camera* newCameraWithDefaults();
 Camera* newCamera(vec3 pos, vec3 front, vec3 up, float yaw, float pitch);
 void cameraGetViewMatrix(Camera* camera, mat4 dest);
+void cameraUpdateViewMatrix(Camera* camera);
+void cameraUpdateProjectionMatrix(Camera* camera, int windowWidth, int windowHeight);
+void cameraUpdateMatricies(Camera* camera, int windowWidth, int windowHeight);
 void cameraProcessKeyboard(Camera* camera, enum CameraMovement direction, float deltaTime);
 void cameraProcessMouse(Camera* camera, float xOffset, float yOffset, bool constrainPitch);
 void cameraProcessScroll(Camera* camera, float yOffset);

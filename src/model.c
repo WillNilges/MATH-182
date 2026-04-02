@@ -12,14 +12,11 @@
 #include <string.h>
 
 #include "assimp/types.h"
-#include "cglm/mat3.h"
-#include "cglm/types.h"
-//#include "libgen.h"
 #include "libgen.h"
 #include "shader.h"
 #include "texture.h"
 
-const char MODEL_MATERIAL_DOT[] = "texture_%s%d";
+const char MODEL_MATERIAL_DOT[] = "material.%s";
 
 const char MODEL_TEXTURE_DIFFUSE[] = "diffuse";
 const char MODEL_TEXTURE_SPECULAR[] = "specular";
@@ -46,7 +43,7 @@ void mesh_draw(Mesh* mesh, Shader* shader)
 
     // OpenGL can bind up to 16 textures
     const int lenTexturesUsed = 16;
-    char texturesUsed[lenTexturesUsed][20];
+    char texturesUsed[lenTexturesUsed][20]; // each entry will be max 19 + sentinel chars long
     int texturesUsedIdx = 0;
 
     //printf("Num textures: %zu\n", mesh->numTextures);
@@ -62,7 +59,8 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", diffuseNr);
             // FIXME: This could segfault if I somehow load more than 16 textures
-            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type, diffuseNr);
+            // FIXME: Sike my main shader actually only uses one material right now.
+            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type);
             shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
             texturesUsedIdx++;
             diffuseNr++;
@@ -72,11 +70,14 @@ void mesh_draw(Mesh* mesh, Shader* shader)
             size_t lenType = strlen(type);
             size_t lenNumber = snprintf(NULL, 0, "%u", specularNr);
             // FIXME: This could segfault if I somehow load more than 16 textures
-            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type, specularNr);
+            // FIXME: Sike my main shader actually only uses one material right now.
+            snprintf(texturesUsed[texturesUsedIdx], 18, MODEL_MATERIAL_DOT, type);
             shaderSetInt(shader, texturesUsed[texturesUsedIdx], i);
             texturesUsedIdx++;
             specularNr++;
         }
+        // TODO: Control shininess value from entity?
+        shaderSetFloat(shader, "material.shininess", 64.0);
         glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
@@ -121,7 +122,7 @@ void mesh_setup(Mesh* mesh)
 
     // vertex positions
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) 0);
 
     // vertex normals
     glEnableVertexAttribArray(1);
@@ -159,7 +160,8 @@ void model_loadModel(Model* model, char* path)
         printf("ERROR::ASSIMP::%s\n", aiGetErrorString());
         return;
     }
-    model->directory = dirname(path);
+    model->directory = dirname(strdup(path)); // FIXME: Shit's segfaulting
+    printf("%s loaded.\n", model->directory);
     model_processNode(model, scene->mRootNode, scene);
 }
 
@@ -332,7 +334,7 @@ Texture* model_loadMaterialTextures(Model* model, struct aiMaterial* mat, enum a
             continue;
         }
 
-        printf("We should load %s\n", str.data);
+        printf("Loading %s\n", str.data);
 
         // Set the texture
         textures[i].id = loadTexture(texturePath);
